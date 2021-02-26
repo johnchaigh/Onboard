@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block title %}
+People
+{% endblock %}
+
+{% block main %}
+
+<div class="uk-card uk-card-default uk-card-small">
+  <div>
+    <div class="uk-text-center uk-card-body">
+      <h4>People</h4>
+    </div>
+    <table class="uk-table uk-table-middle uk-table-divider" id="width">
+      <thead>
+        <th>Name</th>
+        <th>Pathway Enrolled</th>
+        <th style="text-align: center; vertical-align: middle;">Progress</th>
+        <th style="text-align: center; vertical-align: middle;">Date Enrolled</th>
+        <th style="text-align: center; vertical-align: middle;">Days in</th>
+
+      </thead>
+      {% for rows in rows %}
+      <tr>
+        <td><a href="/viewperson?name={{rows['email']}}">{{rows['firstname']}} {{rows['lastname']}}</a></td>
+        <td><a href="/progress?name={{rows["email"]}}&pathway={{rows['pathwayEnrolled']}}"><small>{{rows['pathwayEnrolled']}}</small></a></td>
+        <td style="text-align: center; vertical-align: middle;">{{rows['pathwayEnrolledProgress']}}%</td>
+        <td style="text-align: center; vertical-align: middle;">{{rows['pathwayEnrolledDate']}}</td>
+        <td style="text-align: center; vertical-align: middle;">{{rows['daysinpathway']}}</td>
+
+      </tr>
+      {% endfor %}
+    </table>
+
+  </div>
+  <div id="center">
+    <a href="/newperson"> Add a Person</a>
+  </div>
+
+</div>
+
+{% endblock %}

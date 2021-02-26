@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register
+{% endblock %}
+
+{% block main %}
+
+
+<div class="uk-card uk-card-default uk-card-small">
+            <div class="uk-text-center uk-card-body">
+                Create your profile
+            </div>
+
+<form action="/register" method="post" id="form">
+        <div class="uk-margin">
+            <input autocomplete="off" autofocus class="uk-input" name="firstname" placeholder="First Name" type="text" required>
+        </div>
+        <div class="uk-margin">
+            <input autocomplete="off" class="uk-input" name="lastname" placeholder="Surname" type="text" required>
+        </div>
+        <div class="uk-margin">
+            <input autocomplete="off" class="uk-input" name="email" placeholder="Email" type="text" required>
+        </div>
+        <div class="uk-margin">
+            <span class="uk-form-icon uk-form-icon-flip" uk-icon="icon: lock"></span>
+            <input class="uk-input" name="password" placeholder="Password" type="password" required>
+        </div>
+        <div class="uk-margin">
+            <input class="uk-input" name="company" placeholder="Company" type="text" required>
+        </div>
+        <div class="uk-margin">
+            <input autocomplete="off" class="uk-input" name="jobrole" placeholder="Job Role" type="text" required>
+        </div>
+          <div class="uk-margin">
+          <button class="uk-button uk-button-primary" type="submit">Register</button>
+        </div>
+        <div class="uk-margin">
+          <p>Already have an account? <a href="/login">Click here to login</a></p>
+        </div>
+</form>
+
+
+{% endblock %}

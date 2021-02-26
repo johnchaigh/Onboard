@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Pathways
+{% endblock %}
+
+{% block main %}
+  <div class="uk-card uk-card-default uk-card-small">
+
+    <div class="uk-text-center uk-card-body">
+      <h4>Pathways</h4>
+    </div>
+
+    <table class="uk-table uk-table-middle uk-table-divider" id="width">
+
+      <thead>
+        <tr>
+          <th class="uk-table-small">Pathway Name</th>
+          <th class="uk-table-expand">Pathway Description</th>
+          <th class="uk-table-small" style="text-align: center; vertical-align: middle;">Number Enrolled</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% for pathway in pathways %}
+
+        <tr>
+          <td><small><a href="/viewpathway?name={{pathway["pathwayName"]}}">{{ pathway["pathwayName"] }}</a></small></td>
+          <td><small>{{ pathway["pathwayDescription"] }}</small></td>
+          <td style="text-align: center; vertical-align: middle;">{{ pathway["enrolled"] }}</td>
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+    <div id="center">
+      <a href="/newpathway"> Add a Custom Pathway</a>
+    </div
+
+  </div>
+
+
+
+{% endblock %}

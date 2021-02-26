@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block title %}
+People
+{% endblock %}
+
+{% block main %}
+
+<div class="uk-card uk-card-default uk-card-small">
+
+  <div class="uk-text-center uk-card-body">
+
+    <div class="uk-text-center uk-card-body">
+      <h4>{{ rows[0]["firstname"] }} {{ rows[0]['lastname'] }}</h4>
+    </div>
+    <div class="center">
+      <table class="uk-table uk-table-small">
+        <form method="POST">
+          <thead>
+            <th class="uk-table uk-table-small"></th>
+            <th class="uk-table uk-table-small"></th>
+          </thead>
+          <tr>
+            <td style="text-align: right;">Mobile Phone</td>
+            <td><input type="text" name="mobile" value="{{ rows[0]['mobile'] }}"></td>
+          </tr>
+          <tr>
+            <td style="text-align: right;">Email</td>
+            <td><input type="text" name="email" value="{{ rows[0]['email'] }}"></td>
+          </tr>
+          <tr>
+            <td style="text-align: right;">Business A M</td>
+            <td><input type="text" name="bam" value="{{ rows[0]['bam'] }}"></td>
+          </tr>
+          <tr>
+            <td style="text-align: right;">History</td>
+            <td>
+              <select class="uk-select" name="history">
+                <option>{{ rows[0]['history'] }}</option>
+                <option>Bank</option>
+                <option>IFA</option>
+                <option>Other</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align: right;">Ex Employed Deal</td>
+            <td><input type="text" name="exemployeddeal" value="{{ rows[0]['exEmployedDeal'] }}"></td>
+          </tr>
+          <tr>
+            <td style="text-align: right;">Expires in</td>
+            <td><input type="text" name="exemployeddealexpiry" value="{{ rows[0]['exEmployedDealExpiry'] }}"></td>
+          </tr>
+          <tr>
+            <td style="text-align: right;">Business Written Previous Month</td>
+            <td><input type="text" name="businessWrittenPreviousMonth" value="{{ rows[0]['businessWrittenPreviousMonth'] }}"></td>
+          </tr>
+          <tr>
+            <td style="text-align: right;">Business Written Previous Year</td>
+            <td><input type="text" name="businessWrittenYearToDate" value="{{ rows[0]['businessWrittenYearToDate'] }}"></td>
+          </tr>
+          </table>
+          <br />
+          <button class="uk-button uk-button-primary" type="submit">Update Fields</button>
+          <br />
+        </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

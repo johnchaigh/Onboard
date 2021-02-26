@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Add Steps to Pathway
+{% endblock %}
+
+
+{% block main %}
+
+<body>
+
+  <div class="uk-card uk-card-default uk-card-small">
+
+    <div class="uk-text-center uk-card-body">
+
+      <div class="uk-text-center uk-card-body">
+        Add Stages to
+        <h2>{{ pathwayName }}</h2><br>
+        {{ pathwayDescription }}
+      </div>
+
+      <form method="post" id="form" action="/finishpathway">
+
+        <input type="hidden" name="pathwayName" value="{{ pathwayName }}">
+
+        <table id="t1" class="uk-table uk-table-divider">
+          <tr>
+            <th class="uk-form-width-small">Stage Number</th>
+            <th class="uk-form-width-medium">Stage</th>
+            <th class="uk-form-width-medium">Stage Owner</th>
+            <th class="uk-form-width-medium">Notes / Documents</th>
+            <th> </th>
+          </tr>
+
+          <tr>
+            <td name="stagenumber">1</td>
+            <td><input name="1" type="text"/></td>
+            <td><input name="1 owner" type="text"/></td>
+            <td><input name="1 notes" type="text"/></td>
+            <td><input class="uk-button uk-button-default" type="button" value="Delete Row" onclick="deleteRow(this)" /></td>
+          </tr>
+        </table>
+
+        <button class="uk-button uk-button-default" type="button" value="Add Row" onclick="add()">Add Stage</button>
+        <button class="uk-button uk-button-primary" type="submit">Finish Adding Stages</button>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</body>
+
+{% endblock %}

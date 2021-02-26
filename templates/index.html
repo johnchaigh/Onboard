@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+{% block style %}
+
+
+{% endblock %}
+
+{% block header%}
+    {{header}}
+{% endblock %}
+
+{% block main %}
+<div class="backgroundhome">
+  <div id="center">
+    <img src="static/images/onboard_logo_large.png" alt="onboard large logo">
+    <h4 class="uk-heading uk-text-center"><span>SMOOTH SAILING FOR NEW EMPLOYEES</span></h4>
+    <br />
+    <table id='center'>
+      <tr>
+        <td><a href="/register" class="uk-button uk-button-secondary">Register</a></td>
+        <td><a href="/login"class="uk-button uk-button-primary">Login<a></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+
+{% endblock %}

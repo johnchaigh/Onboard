@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %}
+  Profile
+{% endblock %}
+
+{% block script%}
+
+{% endblock %}
+
+{% block style %}
+{% endblock %}
+
+{% block header%}
+{{header}}
+{% endblock %}
+
+{% block main %}
+<h4>Your Profile</h4>
+<div id="center">
+  <table class="uk-table uk-table-divider">
+    <tr><td>{{firstname}} {{lastname}}</td></tr>
+    <tr><td>Email: {{email}}</td></tr>
+    <tr><td>{{jobrole}} at {{company}}</td></tr>
+  </table>
+</div>
+
+
+
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Upload A Pathway
+{% endblock %}
+
+{% block main %}
+
+<body>
+
+  <div class="uk-card uk-card-default uk-card-small">
+
+    <div class="uk-text-center uk-card-body">
+
+      <h3><small>Add A New Pathway From File</small></h3 <p>It is important that your upload format is identical to that of this template file.</p>
+      <a href="static/files/pathway_upload_template.csv" download>Download template file</a>
+
+      <form class="uk-form-horizontal uk-margin-large" method="POST" id="form" action="" enctype="multipart/form-data">
+
+        <div class="uk-margin">
+          <label class="uk-form-label" for="form-horizontal-text">Name Your Pathway</label>
+          <div class="uk-form-controls">
+            <input class="uk-input" id="form-horizontal-text" type="text" name="pathwayName">
+          </div>
+        </div>
+
+        <div class="uk-margin">
+          <label class="uk-form-label" for="form-horizontal-text">What does it do?</label>
+          <div class="uk-form-controls">
+            <input class="uk-input" id="form-horizontal-text" type="text" name="pathwayDescription">
+          </div>
+        </div>
+
+        <div class="uk-margin">
+          <label class="uk-form-label" for="form-horizontal-select">Sharing Preferences</label>
+          <div class="uk-form-controls">
+            <select class="uk-select" id="form-horizontal-select" name="public">
+              <option>Private To Me</option>
+              <option>Shared Across My Organisation</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="uk-margin">
+          <label class="uk-form-label" for="form-horizontal-select">Choose CSV File to Upload</label>
+          <div class="uk-form-controls">
+            <p><input type="file" name="file" accept=".csv"></p>
+          </div>
+        </div>
+
+        <br />
+        <button class="uk-button uk-button-primary" type="submit" value="Submit">Submit</button>
+      </form>
+
+    </div>
+  </div>
+
+</body>
+
+
+
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Pathways
+{% endblock %}
+
+{% block main %}
+
+
+<div class="uk-card uk-card-default uk-card-small">
+
+  <div class="uk-text-center uk-card-body">
+    <h3>{{pathwayName}}</h3>
+
+    <p><small>{{pathwayDescription['pathwayDescription']}}</small></p>
+  </div>
+
+  <table class="uk-table uk-table-middle uk-table-hover uk-table-divider">
+    <thead>
+      <th class="uk-table-small">Stage</th>
+      <th class="uk-table-middle">Content</th>
+      <th class="uk-table-middle">Owner</th>
+      <th class="uk-table-middle">Notes</th>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td><small>{{ row["stagenumber"] }}</small></td>
+        <td><small>{{ row["stagecontent"] }}</small></td>
+        <td><small>{{ row["stageowner"] }}</small></td>
+        <td><small>{{ row["stagenotes"] }}</small></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h4> Currently Enrolled</h4>
+
+  <table class="uk-table uk-table-middle uk-table-divider">
+    <thead>
+      <th>Name</th>
+      <th style="text-align: center; vertical-align: middle;">Stage</th>
+      <th style="text-align: center; vertical-align: middle;">Date Enrolled</th>
+      <th style="text-align: center; vertical-align: middle;">Progress</th>
+      <th style="text-align: center; vertical-align: middle;">View Progress</th>
+    </thead>
+    <tbody>
+      {% for people in people %}
+      <tr>
+        <td>{{people['firstname']}} {{people['lastname']}}</td>
+        <td style="text-align: center; vertical-align: middle;">{{people['pathwayEnrolledPosition']}}</td>
+        <td style="text-align: center; vertical-align: middle;">{{people['pathwayEnrolledDate']}}</td>
+        <td style="text-align: center; vertical-align: middle;">{{people['pathwayEnrolledProgress']}}%</td>
+        <td style="text-align: center; vertical-align: middle;"><a href="/progress?name={{people["email"]}}&pathway={{pathwayName}}"><span uk-icon="icon:  triangle-right"></span></a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+  <div id="center">
+    <a href="/enroll" class="uk-button uk-button-link">Add to pathway</a>
+    <br><br><br>
+    <a href="/pathways" class="uk-button uk-button-primary">Back To Pathways</a>
+    <a href="/delete?pathway={{pathwayName}}&name={{FullName}}%id=pathway" class="uk-button uk-button-danger" onclick="return confirm('Are you sure you want to delete? This cannot be undone.')">Delete Pathway</a>
+  </div
+
+</div>
+
+  {% endblock %}

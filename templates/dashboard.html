@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block main %}
+
+<div class="homepagebackground">
+
+  <div class="uk-card uk-card-default uk-card-small">
+
+<div class="uk-text-center uk-card-body">
+  <br>
+  <p>Click below to get started</p>
+</div>
+
+      <table class="uk-table uk-table-middle" id="center">
+        <tr>
+          <td><a href="/people"><img src="static/images/opportunity.svg" alt="piechart"class="icon"></a></td>
+          <td><a href="/pathways"><img src="static/images/rocket-launch.svg" alt="piechart"class="icon"></td>
+          <td><a href="/report"><img src="static/images/pie-chart.svg" alt="piechart"class="icon"></td>
+        </tr>
+        <tr>
+          <td>People</td>
+          <td>Pathways</td>
+          <td>Reports</td>
+        </tr>
+      </table>
+      <br><br>
+    </div>
+
+  </div>
+
+
+  {% endblock %}

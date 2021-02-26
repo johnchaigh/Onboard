@@ -1,0 +1,106 @@
+/**
+ * @Author: johnhaigh
+ * @Date:   2020-06-24T18:49:42+01:00
+ * @Last modified by:   johnhaigh
+ * @Last modified time: 2021-02-25T10:30:46+00:00
+ */
+
+#form {
+    width: 80%;
+    margin:0 auto;
+    text-align: center;
+    padding: 20px
+}
+
+#center {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    padding: 30px;
+}
+
+#width {
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    padding: 20px;
+}
+
+#tablepadding {
+  padding-top: 50px;
+  padding-right: 30px;
+  padding-bottom: 50px;
+  padding-left: 80px;
+}
+
+
+.icon {
+    max-width: 175px;
+    height: auto;
+    padding: 20px;
+}
+
+body {
+    border-color: coral;
+    }
+
+h4{
+    text-align: center;
+    colour: white;
+    font-weight: 100;
+    padding: 20px
+    }
+
+#padding{
+  padding: 30px;
+}
+
+#title{
+  font-weight: 150
+  padding: 30px;
+}
+
+.background {
+  background-image: url("images/onboard_homepage_background_1400x933px.jpg");
+  background: no-repeat center center fixed;
+  background-size: cover;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+
+}
+
+.center {
+  width:50%;
+  height:50%;
+  margin:0 auto;
+}
+
+body{
+
+  background-image: url("images/ikaia-pal-V1GDlBQFrV0-unsplash.jpg");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+  background-color: #464646;
+  height: 100vh;
+
+}
+
+.footer{
+  text-align: center;
+  height: 40px;
+  width: 300px%;
+  border-width: thin;
+  border-color: black;
+
+}
+
+/* Color Theme Swatches in Hex */
+.My-Color-Theme-1-hex { color: #17252A; }
+.My-Color-Theme-2-hex { color: #2B7A78; }
+.My-Color-Theme-3-hex { color: #3AAFA9; }
+.My-Color-Theme-4-hex { color: #DEF2F1; }
+.My-Color-Theme-5-hex { color: #FEFFFF; }

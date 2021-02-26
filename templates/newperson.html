@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block title %}
+New Person
+{% endblock %}
+
+{% block main %}
+
+
+<div class="uk-card uk-card-default uk-card-small">
+
+  <div class="uk-text-center uk-card-body">
+    <h4>Add A New Person</h4>
+  </div>
+
+  <form action="/newperson" method="post" id="form">
+    <div class="uk-margin">
+      <input autocomplete="off" autofocus class="uk-input" name="firstname" placeholder="First Name" type="text" required>
+    </div>
+
+    <div class="uk-margin">
+      <input class="uk-input" name="lastname" placeholder="Surname" type="text" required>
+    </div>
+
+    <div class="uk-margin">
+      <input class="uk-input" name="mobile" placeholder="Mobile Phone Number" type="text" required>
+    </div>
+
+    <div class="uk-margin">
+      <input class="uk-input" name="email" placeholder="Email Address" type="text" required>
+    </div>
+
+    <div class="uk-margin">
+      <input class="uk-input" name="bam" placeholder="Business Acquisition Manager" type="text" required>
+    </div>
+
+    <div class="uk-margin">
+      <p style="text-align: left;"> Where are they coming from?</p>
+      <select class="uk-select" name="history">
+        <option>Bank</option>
+        <option>IFA</option>
+        <option>Other</option>
+      </select>
+    </div>
+
+<div class="uk-margin">
+  <input class="uk-input" name="exemployeddeal" placeholder="Ex Employed Deal in £" type="int" required>
+</div>
+
+<div class="uk-margin">
+  <input class="uk-input" name="exemployeddealexpiry" placeholder="Ex Employed Deal Expiry" type="text" data-uk-datepicker="{format:'DD.MM.YYYY'}">
+          </div>
+
+          <div class=" uk-margin">
+  <input class="uk-input" name="businessWrittenPreviousMonth" placeholder="Business Written Previous Month" type="int">
+</div>
+
+<div class="uk-margin">
+  <input class="uk-input" name="businessWrittenYearToDate" placeholder="Business Written Year To Date" type="int">
+</div>
+
+<button class="uk-button uk-button-primary" type="submit">Submit</button>
+</form>
+
+</div>
+
+{% endblock %}

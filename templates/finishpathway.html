@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Pathways
+{% endblock %}
+
+{% block main %}
+
+<div class="uk-card uk-card-default uk-card-small">
+
+    <div class="uk-text-center uk-card-body">
+      <h4>{{pathwayName}}</h4>
+    </div>
+
+  <table class="uk-table uk-table-middle uk-table-divider">
+  <thead>
+
+    <th class="uk-table-small">Stage</th>
+    <th class="uk-table-middle">Content</th>
+    <th class="uk-table-middle">Owner</th>
+    <th class="uk-table-middle">Notes</th>
+    </thead>
+
+
+    <tbody>
+
+      {% for row in rows %}
+
+      <tr>
+        <td> {{ row["stagenumber"] }}</td>
+        <td>{{ row["stagecontent"] }}</td>
+        <td>{{ row["stageowner"] }}</td>
+        <td>{{ row["stagenotes"] }}</td>
+      </tr>
+
+      {% endfor %}
+
+    </tbody>
+
+  </table>
+
+  <div id="center">
+    <a href="/dashboard">Finish Pathway</a>
+  </div>
+
+</div>
+
+</div>
+
+{% endblock %}

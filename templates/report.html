@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Upload A Pathway
+{% endblock %}
+
+
+{% block main %}
+
+<body>
+
+  <div class="uk-card uk-card-default uk-card-small">
+
+    <div class="uk-text-center uk-card-body">
+
+      <div class="uk-text-center uk-card-body">
+        Generate Reports
+      </div>
+
+      <div class="uk-card uk-card-default uk-card-body">People</div>
+      <form action="{{ url_for('report') }}" method="post">
+        <select class="uk-select" id="form-horizontal-select" name="nameexport">
+          <option value="none"> --- </option>
+          <option value="allpeople"> All People </option>
+          {% for people in people %}
+          <option value="{{people['email']}}">{{people['firstname']}} {{people['lastname']}}</option>
+          {% endfor %}
+        </select>
+
+
+
+        <div class="uk-card uk-card-default uk-card-body">Pathways</div>
+        <div>
+          <select class="uk-select" id="form-horizontal-select" name="pathwayexport">
+            <option value="none"> --- </option>
+            <option value="allpathways"> All Pathways </option>
+            {% for pathway in pathway %}
+            <option value="{{pathway['pathwayName']}}">{{pathway['pathwayName']}}</option>
+            {% endfor %}
+          </select>
+        </div><br>
+        <button class="uk-button uk-button-primary" type="submit" method="POST">Download Data</button>
+
+      </form>
+    </div>
+</div>
+</body>
+
+{% endblock %}

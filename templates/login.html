@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block main %}
+
+<div class="uk-card uk-card-default uk-card-small">
+            <div class="uk-text-center uk-card-body">
+
+                Login to your account
+            </div>
+
+
+    <form action="/login" method="post" id="form">
+        <div class="uk-margin">
+            <input autocomplete="off" autofocus class="uk-input" name="username" placeholder="Username" type="text" required>
+        </div>
+        <div class="uk-margin">
+            <span class="uk-form-icon uk-form-icon-flip" uk-icon="icon: lock"></span>
+            <input class="uk-input" name="password" placeholder="Password" type="password" required>
+        </div>
+        <button class="uk-button uk-button-primary" type="submit">Log In</button>
+        <div class="uk-margin">
+          <p>Don't yet have an account? <a href="/register">Click here to register</a></p>
+        </div>
+    </form>
+
+{% endblock %}

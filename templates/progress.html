@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Progress
+{% endblock %}
+
+{% block main %}
+
+<div class="uk-card uk-card-default uk-card-small">
+
+  <div class="uk-text-center uk-card-body">
+    <h3>{{rows[0]['firstname']}} {{rows[0]['lastname']}}</h3>
+
+    <h4>Enrolled in: {{rows[0]['pathwayEnrolled']}}</h4>
+  </div>
+
+  <table class="uk-table uk-table-middle uk-table-divider">
+    <thead>
+      <th>Stage</th>
+      <th>Content</th>
+      <th>Notes</th>
+      <th>Owner</th>
+      <th>Date Completed</th>
+    </thead>
+    <tbody>
+      {% for pathwayprogress in pathwayprogress %}
+      <tr style="background-color:#b8e9ea">
+        <td><small>{{ pathwayprogress["stagenumber"] }}</small></td>
+        <td><small>{{ pathwayprogress["stagecontent"] }}</small></td>
+        <td><small>{{ pathwayprogress["stagenotes"] }}</small></td>
+        <td><small>{{ pathwayprogress["stageowner"] }}</small></td>
+        <td><small>{{ pathwayprogress["datecompleted"] }}</small></td>
+      </tr>
+      {% endfor %}
+      {% for pathwayremaining in pathwayremaining %}
+      <tr style="background-color:#f7f7f7">
+        <td><small>{{ pathwayremaining["stagenumber"] }}</small></td>
+        <td><small>{{ pathwayremaining["stagecontent"] }}</small></td>
+        <td><small>{{ pathwayremaining["stagenotes"] }}</small></td>
+        <td><small>{{ pathwayremaining["stageowner"] }}</small></td>
+        <td><small><a href="/stagecomplete?name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}&pathwaystage={{pathwayremaining["stagenumber"]}}">Mark Complete</a></small></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div id="center">
+    <a href="/pathways" class="uk-button uk-button-primary">Back To Pathways</a>
+    <a a href="/delete?id=enroll&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}" class="uk-button uk-button-danger" onclick="return confirm('Are you sure you want to remove this person? This cannot be undone.')">Remove from pathway</a>
+  </div </div>
+
+  {% endblock %}

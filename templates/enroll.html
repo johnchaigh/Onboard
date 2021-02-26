@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Enroll
+{% endblock %}
+
+{% block main %}
+
+<div class="uk-card uk-card-default uk-card-small">
+
+  <div class="uk-text-center uk-card-body">
+    <h2>Enroll</h2>
+  </div>
+  <form action="/enroll" method="post" id="form">
+        <legend class="uk-legend">Select Person</legend>
+        <div class="uk-margin">
+            <select class="uk-select" name="name">
+              {% for people in people %}
+                <option>{{people['firstname']}} {{people['lastname']}}</option>
+              {% endfor %}
+            </select>
+        </div>
+
+        <legend class="uk-legend">Select Pathway</legend>
+        <div class="uk-margin">
+            <select class="uk-select" name="pathway">
+              {% for pathways in pathways %}
+                <option>{{pathways['pathwayName']}}</option>
+              {% endfor %}
+            </select>
+        </div>
+        <div class="uk-margin">
+        <button class="uk-button uk-button-primary" type="submit">Enroll</button>
+        </div>
+</form>
+
+{% endblock %}

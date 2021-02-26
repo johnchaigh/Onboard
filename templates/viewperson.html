@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block title %}
+People
+{% endblock %}
+
+{% block main %}
+
+<div class="uk-card uk-card-default uk-card-small">
+
+  <div class="uk-text-center uk-card-body">
+
+    <div class="uk-text-center uk-card-body">
+      <h4>{{ rows[0]["firstname"] }} {{ rows[0]['lastname'] }}</h4>
+    </div>
+
+    <table class="uk-table uk-table-small">
+
+      <tr><td>Mobile Phone: {{ rows[0]['mobile'] }} </td></tr>
+      <tr><td>Email: {{ rows[0]['email'] }} </td></tr>
+      <tr><td>Business Manager: {{ rows[0]['bam'] }} </td></tr>
+      <tr><td>History: {{ rows[0]['history'] }} </td></tr>
+      <tr><td>Ex-employed deal £{{ rows[0]['exEmployedDeal'] }}, expires in {{ rows[0]['exEmployedDealExpiry'] }} </td></tr>
+      <tr><td>Business Written Previous Month: £{{ rows[0]['businessWrittenPreviousMonth'] }} </td></tr>
+      <tr><td>Business Written Previous Year: £{{ rows[0]['businessWrittenYearToDate'] }} </td></tr>
+    </table>
+
+        <div id="center">
+          <a class="uk-button uk-button-default" href="/updatefields?name={{rows[0]['email']}}">Update Fields</a><a class="uk-button uk-button-primary" href="/people">Back To People</a>
+        </div>
+        <div id="center">
+          <a class="uk-button uk-button-danger" href="/delete?id=person&name={{rows[0]['email']}}"onclick="return confirm('Are you sure you want to delete this person? This cannot be undone.')">Delete Person</a>
+        </div>
+
+
+    </div>
+
+  </div>
+
+  {% endblock %}
