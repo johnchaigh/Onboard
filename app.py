@@ -1,7 +1,7 @@
 # @Author: johnhaigh
 # @Date:   2020-12-29T17:16:37+00:00
 # @Last modified by:   johnhaigh
-# @Last modified time: 2021-02-26T18:01:29+00:00
+# @Last modified time: 2021-03-03T17:57:50+00:00
 
 #A web based application to track the onboarding of new recruits.
 
@@ -101,7 +101,7 @@ def register():
     if request.method == "GET":
         return render_template('register.html')
     else:
-
+        db = SQL("sqlite:///onboard.db")
         firstname = request.form.get("firstname")
         lastname = request.form.get("lastname")
         email = request.form.get("email")
@@ -133,6 +133,7 @@ def login():
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
 
+        db = SQL("sqlite:///onboard.db")
         # Query database for username
         rows = db.execute("SELECT * FROM users WHERE email = :username", username=request.form.get("username"))
 
@@ -164,6 +165,7 @@ def logout():
 def people():
 
     if request.method == "GET":
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
@@ -183,6 +185,8 @@ def people():
         i = 0
         daysin = {}
 
+        #Update length of time they've been enrolled in the pathway
+
         for row in rows:
 
             dateenrolled = rows[i]['pathwayEnrolledDate']
@@ -198,23 +202,81 @@ def people():
                 delta = d1 - d0
                 daysin = delta.days
 
+                if daysin != 0:
+
+                    #Based on rate of progress estimate a completion date
+
+                    progressnumber = int(rows[i]['pathwayEnrolledProgress'])
+                    daysleft = int((daysin / progressnumber) * 100)
+                    estcompletion = d0 + datetime.timedelta(days=daysleft)
+
+                    #And prepare it to be inserted into the database
+                    j = (str(estcompletion).split("-",3))
+                    year = (j[0])
+                    month = (j[1])
+                    day = (j[2])
+                    estcompletion = day + " / " + month + " / " + year
+
+                    #Set score
+                    score = round((progressnumber / daysin), 2)
+
+                else:
+
+                    estcompletion = 'Not yet known'
+                    score = 0
+
             else:
 
                 daysin = 0
+                estcompletion = ' '
+                score = 0
 
-            db.execute("UPDATE people SET daysinpathway = ?", daysin )
+
+            db.execute("UPDATE people SET daysinpathway = ?, estcompletion = ?, score = ? WHERE email = ?", daysin, estcompletion, score, rows[i]['email'])
+            i = i+1
 
         return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows)
 
-    else:
+    elif request.method == "POST":
+        db = SQL("sqlite:///onboard.db")
 
-        return render_template("newperson.html", Fullname = fullname)
+        info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
+        username = info[0]['email']
+        firstname = info[0]['firstname']
+        lastname = info[0]['lastname']
+        companymail = info[0]['companymail']
+
+        fullname = firstname + ' ' + lastname
+
+        if request.form.get('sort') == 'score':
+
+            rows = db.execute("SELECT * FROM people WHERE pdm = ? ORDER BY score ASC", username)
+
+        if request.form.get('sort') == 'days':
+
+            rows = db.execute("SELECT * FROM people WHERE pdm = ? ORDER BY daysinpathway DESC", username)
+
+        if request.form.get('sort') == 'progress':
+
+            rows = db.execute("SELECT * FROM people WHERE pdm = ? ORDER BY pathwayEnrolledProgress DESC", username)
+
+        if request.form.get('sort') == 'name':
+
+            rows = db.execute("SELECT * FROM people WHERE pdm = ? ORDER BY lastname", username)
+
+        if request.form.get('sort') == 'pathway':
+
+            rows = db.execute("SELECT * FROM people WHERE pdm = ? ORDER BY pathwayEnrolled", username)
+
+        return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows)
 
 @app.route("/newperson", methods=["GET", "POST"])
 @login_required
 def newperson():
 
     if request.method == "POST":
+
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
@@ -234,7 +296,7 @@ def newperson():
         personbusinessWrittenPreviousMonth = request.form.get("businessWrittenPreviousMonth")
         personbusinessWrittenYearToDate = request.form.get("businessWrittenYearToDate")
 
-        database = db.execute("""CREATE TABLE IF NOT EXISTS people ('id' integer PRIMARY KEY NOT NULL, 'firstname' text NOT NULL, 'lastname' text NOT NULL, 'mobile' text NOT NULL, 'email' text NOT NULL, 'pdm' text NOT NULL, 'bam' text, 'pathwayEnrolled' text, 'pathwayEnrolledDate' text, 'pathwayEnrolledPosition' text, 'pathwayEnrolledProgress' integer,  'pathwayEnrolledPositionDate' text, 'history' text, 'exEmployedDeal' text, 'exEmployedDealExpiry' text, 'businessWrittenPreviousMonth' integer, 'businessWrittenYearToDate'  integer, 'daysinpathway' integer)""")
+        database = db.execute("""CREATE TABLE IF NOT EXISTS people ('id' integer PRIMARY KEY NOT NULL, 'firstname' text NOT NULL, 'lastname' text NOT NULL, 'mobile' text NOT NULL, 'email' text NOT NULL, 'pdm' text NOT NULL, 'bam' text, 'pathwayEnrolled' text, 'pathwayEnrolledDate' text, 'pathwayEnrolledPosition' text, 'pathwayEnrolledProgress' integer,  'pathwayEnrolledPositionDate' text, 'history' text, 'exEmployedDeal' text, 'exEmployedDealExpiry' text, 'businessWrittenPreviousMonth' integer, 'businessWrittenYearToDate'  integer, 'daysinpathway' integer, 'estcompletion' text, 'score' int)""")
 
         db.execute("INSERT INTO people (firstname, lastname, mobile, email, pdm, bam, history, exEmployedDeal, exEmployedDealExpiry, businessWrittenPreviousMonth, businessWrittenYearToDate) VALUES(?,?,?,?,?,?,?,?,?,?,?)", personfirstname, personlastname, personmobile, personemail, username, personbam, personhistory, personexemployeddeal, personexemployeddealexpiry, personbusinessWrittenPreviousMonth, personbusinessWrittenYearToDate)
 
@@ -243,6 +305,8 @@ def newperson():
         return render_template("viewperson.html", rows = rows, FullName = fullname)
 
     else:
+
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
@@ -258,6 +322,8 @@ def newperson():
 def viewperson():
 
     if request.method == "GET":
+
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
@@ -278,6 +344,8 @@ def dashboard():
 
     if request.method == "GET":
 
+        db = SQL("sqlite:///onboard.db")
+
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
         firstname = info[0]['firstname']
@@ -295,6 +363,8 @@ def dashboard():
 def pathways():
     if request.method == "GET":
 
+        db = SQL("sqlite:///onboard.db")
+
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
         firstname = info[0]['firstname']
@@ -305,7 +375,7 @@ def pathways():
         fullname = firstname + ' ' + lastname
 
         # Add user to database, if user already exists say eror username already exists
-        pathways = db.execute("SELECT * FROM pathways WHERE email = ?", email)
+        pathways = db.execute("SELECT * FROM pathways WHERE email = ? ORDER BY pathwayName", email)
 
         return render_template("pathways.html", firstname = firstname, company=company, FullName = fullname, pathways = pathways)
 
@@ -313,6 +383,8 @@ def pathways():
 @login_required
 def newpathway():
     if request.method == "GET":
+
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
@@ -324,6 +396,8 @@ def newpathway():
         return render_template("newpathway.html", firstname = firstname, company=company, FullName = fullname)
 
     else:
+
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
@@ -357,7 +431,10 @@ def newpathway():
 @app.route("/addsteps", methods=["GET", "POST"])
 @login_required
 def addsteps():
+
     if request.method == "GET":
+
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
@@ -379,7 +456,10 @@ def addsteps():
 @app.route("/finishpathway", methods=["GET", "POST"])
 @login_required
 def finishpathway():
+
     if request.method == "POST":
+
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
@@ -427,6 +507,8 @@ def viewpathway():
 
     if request.method == "GET":
 
+        db = SQL("sqlite:///onboard.db")
+
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
 
         firstname = info[0]['firstname']
@@ -452,6 +534,8 @@ def enroll():
 
     if request.method == "GET":
 
+        db = SQL("sqlite:///onboard.db")
+
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
         firstname = info[0]['firstname']
@@ -460,11 +544,13 @@ def enroll():
         fullname = firstname+' '+lastname
 
         people = db.execute("SELECT * FROM people WHERE pdm = ?", username)
-        pathways = db.execute("SELECT * FROM pathways WHERE email = ?", username)
+        pathways = db.execute("SELECT * FROM pathways WHERE email = ? ORDER BY pathwayName", username)
 
         return render_template("enroll.html", people = people, pathways = pathways, FullName = fullname)
 
     else:
+
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
@@ -483,16 +569,18 @@ def enroll():
         person = db.execute("SELECT * from people WHERE firstname = ? AND lastname = ? AND pdm = ?", firstname, lastname, username)
         personemail = person[0]['email']
 
+
         datetoday = (datetime.datetime.today().strftime ('%d'))+" / "+(datetime.datetime.today().strftime ('%m'))+" / "+(datetime.datetime.today().strftime ('%Y'))
 
-        row = db.execute("SELECT * from people WHERE pathwayEnrolled = ? AND email = ?", pathway, personemail)
+        #Check to see if user already enrolled in a pathway
 
-        if row:
-            return render_template('apology.html', FullName = fullnameuser, message="User already registered", bodymessage = "User already enrolled")
+        row = db.execute("SELECT * from people WHERE email = ? and pdm = ?", personemail, username)
+        pathwaystring = str(row[0]['pathwayEnrolled'])
 
-        else:
+        if pathwaystring == 'None':
 
-            db.execute("UPDATE people SET pathwayEnrolledDate = ?, pathwayEnrolled = ?, pathwayEnrolledPosition = ?, pathwayEnrolledProgress = ?, pathwayEnrolledPositionDate = ? WHERE email = ?", datetoday, pathway , 0 , 0 , datetoday, personemail)
+            daysin = 1
+            db.execute("UPDATE people SET pathwayEnrolledDate = ?, pathwayEnrolled = ?, pathwayEnrolledPosition = ?, pathwayEnrolledProgress = ?, pathwayEnrolledPositionDate = ?, daysinpathway = 0, estcompletion = ?, score = 0 WHERE email = ?", datetoday, pathway , 0 , 0 , datetoday, 'Not yet known', personemail)
             db.execute("UPDATE pathways SET enrolled = enrolled + 1 WHERE pathwayNAME = ? AND email = ?", pathway, username)
             rows = db.execute("SELECT * FROM people where email = ?", personemail)
             pathwaystages = db.execute("SELECT * FROM pathwaystages where pathwayName = ?", pathway)
@@ -504,18 +592,24 @@ def enroll():
                 db.execute("INSERT INTO pathwayprogress (email, pathwayName, stagenumber, stagecontent, stageowner, stagenotes, completed) VALUES (?,?,?,?,?,?,?)", personemail, pathway, pathwaystages[stagenumber]['stagenumber'], pathwaystages[stagenumber]['stagecontent'], pathwaystages[stagenumber]['stageowner'], pathwaystages[stagenumber]['stagenotes'], 0)
                 stagenumber = stagenumber + 1
 
-            #daysin = datetoday - datetime.datetime.today().strftime ('%d%m%Y')
-            daysin = 0
             pathwayprogress = db.execute("SELECT * FROM pathwayprogress WHERE email = ? AND completed = ? AND pathwayName = ?", personemail, 1, pathway)
             pathwayremaining = db.execute("SELECT * FROM pathwayprogress WHERE email = ? AND completed = ? AND pathwayName = ?", personemail, 0, pathway)
 
             return render_template("progress.html", FullName = fullnameuser, pathwayprogress = pathwayprogress, pathwayremaining = pathwayremaining, position = position, rows = rows, pathwaystages = pathwaystages, daysin = daysin)
+
+        else:
+
+            print(pathway)
+            bodymessage = "User already enrolled in: " + row[0]['pathwayEnrolled']
+            return render_template('apology.html', FullName = fullnameuser, bodymessage = bodymessage)
 
 @app.route("/progress", methods=["GET", "POST"])
 @login_required
 def progress():
 
     if request.method == "GET":
+
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
@@ -546,6 +640,8 @@ def stagecomplete():
 
     if request.method == "GET":
 
+        db = SQL("sqlite:///onboard.db")
+
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
         firstname = info[0]['firstname']
@@ -559,7 +655,15 @@ def stagecomplete():
 
         datetoday = (datetime.datetime.today().strftime ('%d'))+" / "+(datetime.datetime.today().strftime ('%m'))+" / "+(datetime.datetime.today().strftime ('%Y'))
 
-        db.execute("UPDATE pathwayprogress SET datecompleted = ?, completed = 1 WHERE email = ? AND stagenumber = ? AND pathwayName = ?", datetoday, personemail, pathwaystage, pathway)
+        if request.args.get('id') == 'complete':
+
+            #Update completed stages in database
+            db.execute("UPDATE pathwayprogress SET datecompleted = ?, completed = 1 WHERE email = ? AND stagenumber = ? AND pathwayName = ?", datetoday, personemail, pathwaystage, pathway)
+
+        elif request.args.get('id') == 'delete':
+
+            #Update completed stages in database
+            db.execute("UPDATE pathwayprogress SET datecompleted = ?, completed = 0 WHERE email = ? AND stagenumber = ? AND pathwayName = ?", 'Not complete', personemail, pathwaystage, pathway)
 
         #calculation of percentage complete
         stagenumber = db.execute("SELECT stagenumber from pathwaystages WHERE pathwayName = ? ORDER BY stagenumber DESC", pathway)
@@ -567,7 +671,7 @@ def stagecomplete():
         completed = db.execute("SELECT * FROM pathwayprogress WHERE email = ? AND pathwayName = ? AND completed = 1", personemail, pathway)
         pathwaypercent = int(100 * (len(completed) / numberofstages) )
 
-        db.execute("UPDATE people SET pathwayEnrolledPosition = ?, pathwayEnrolledProgress = ?,  pathwayEnrolledPositionDate = ? WHERE email = ?", pathwaystage, pathwaypercent, datetoday, personemail)
+        db.execute("UPDATE people SET pathwayEnrolledPosition = ?, pathwayEnrolledProgress = ?,  pathwayEnrolledPositionDate = ?, pathwayEnrolledPosition = ? WHERE email = ?", pathwaystage, pathwaypercent, datetoday, pathwaystage, personemail)
 
         rows = db.execute("SELECT * from people WHERE pathwayEnrolled = ? AND email = ?", pathway, personemail)
 
@@ -576,11 +680,14 @@ def stagecomplete():
 
         return render_template("progress.html", FullName = fullname, pathwayprogress = pathwayprogress, pathwayremaining = pathwayremaining, rows = rows)
 
+
 @app.route("/upload", methods=['POST', "GET"])
 @login_required
 def upload():
 
     if request.method == 'GET':
+
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
@@ -594,6 +701,8 @@ def upload():
         return render_template("upload.html", FullName = fullname)
 
     else:
+
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
@@ -646,6 +755,8 @@ def report():
 
     if request.method == 'GET':
 
+        db = SQL("sqlite:///onboard.db")
+
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
         firstname = info[0]['firstname']
@@ -661,6 +772,8 @@ def report():
         return render_template("report.html", FullName = fullname, people = people, pathway = pathway)
 
     else:
+
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
@@ -704,6 +817,8 @@ def delete():
 
     if request.method == 'GET':
 
+        db = SQL("sqlite:///onboard.db")
+
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
         firstname = info[0]['firstname']
@@ -723,8 +838,8 @@ def delete():
 
             rows = db.execute("SELECT * from people WHERE pathwayEnrolled = ? AND email = ?", pathway, personemail)
 
-            db.execute("DELETE FROM pathwayprogress WHERE pathwayName = ? AND email =?", pathway, personemail)
-            db.execute("UPDATE people SET pathwayEnrolledDate = NULL, pathwayEnrolled = NULL, pathwayEnrolledPosition = NULL, pathwayEnrolledProgress = NULL,  pathwayEnrolledPositionDate = NULL WHERE email = ?", personemail)
+            db.execute("DELETE FROM pathwayprogress WHERE email = ?", personemail)
+            db.execute("UPDATE people SET pathwayEnrolledDate = NULL, pathwayEnrolled = NULL, pathwayEnrolledPosition = NULL, pathwayEnrolledProgress = NULL,  pathwayEnrolledPositionDate = NULL, score = Null, daysinpathway = Null, estcompletion = Null WHERE email = ?", personemail)
             db.execute("UPDATE pathways SET enrolled = enrolled - 1 WHERE pathwayNAME = ? AND email = ?", pathway, username)
 
             deleted = ('Removed from '+pathway)
@@ -735,7 +850,7 @@ def delete():
 
             personemail = request.args.get('name')
             db.execute("DELETE FROM people WHERE email = ? AND pdm =?", personemail, username)
-            deleted = ( +' removed')
+            deleted = (personemail +' removed')
 
             return render_template("/delete.html", FullName = fullname, deleted = deleted)
 
@@ -752,6 +867,8 @@ def delete():
 def profile():
 
     if request.method == "GET":
+
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
 
@@ -774,6 +891,8 @@ def updatefields():
 
     if request.method == "GET":
 
+        db = SQL("sqlite:///onboard.db")
+
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
         firstname = info[0]['firstname']
@@ -788,6 +907,8 @@ def updatefields():
         return render_template("updatefields.html", Fullname = fullname, rows = rows)
 
     else:
+
+        db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         username = info[0]['email']
@@ -809,6 +930,69 @@ def updatefields():
         rows = db.execute("SELECT DISTINCT * FROM people WHERE email = ?", personemail)
 
         return render_template("viewperson.html", Fullname = fullname, rows = rows)
+
+
+@app.route("/updatedates", methods=["GET", "POST"])
+@login_required
+def updatedates():
+
+    #Updates the completion dates of pathway stages
+
+    if request.method == "GET":
+
+        db = SQL("sqlite:///onboard.db")
+
+        info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
+        username = info[0]['email']
+        firstname = info[0]['firstname']
+        lastname = info[0]['lastname']
+        fullname = firstname + ' ' + lastname
+
+        id = request.args.get('dates')
+        personemail = request.args.get('name')
+        pathway = request.args.get('pathwayname')
+
+        rows = db.execute("SELECT * from people WHERE pathwayEnrolled = ? AND email = ?", pathway, personemail)
+
+        pathwayprogress = db.execute("SELECT * FROM pathwayprogress WHERE email = ? AND completed = ? AND pathwayName = ?", personemail, 1, pathway)
+
+        return render_template("updatedates.html", FullName = fullname, pathwayprogress = pathwayprogress,rows = rows)
+
+    if request.method == "POST":
+
+        db = SQL("sqlite:///onboard.db")
+
+        info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
+        username = info[0]['email']
+        firstname = info[0]['firstname']
+        lastname = info[0]['lastname']
+        fullname = firstname + ' ' + lastname
+
+        id = request.args.get('dates')
+        personemail = request.args.get('name')
+        pathway = request.args.get('pathwayname')
+
+        req = request.form
+        numberofentries = (len(req))
+        newenrolleddate = req['enrolleddate']
+        db.execute("UPDATE people SET pathwayEnrolledDate = ? WHERE email = ? AND pdm = ?", newenrolleddate, personemail, username)
+        i = 1
+
+        while i < numberofentries:
+
+            number = str(i)
+            datechange = req[number]
+            stagenumber = i
+            db.execute("UPDATE pathwayprogress SET datecompleted = ? WHERE stagenumber = ? AND email = ? AND pathwayName = ?", datechange, stagenumber, personemail, pathway)
+            i = (i+1)
+
+        rows = db.execute("SELECT * from people WHERE pathwayEnrolled = ? AND email = ?", pathway, personemail)
+
+        pathwayprogress = db.execute("SELECT * FROM pathwayprogress WHERE email = ? AND completed = ? AND pathwayName = ?", personemail, 1, pathway)
+        pathwayremaining = db.execute("SELECT * FROM pathwayprogress WHERE email = ? AND completed = ? AND pathwayName = ?", personemail, 0, pathway)
+
+        return render_template("progress.html", FullName = fullname, pathwayprogress = pathwayprogress, pathwayremaining = pathwayremaining, rows = rows)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

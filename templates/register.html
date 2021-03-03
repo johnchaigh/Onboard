@@ -4,7 +4,40 @@
     Register
 {% endblock %}
 
+<script>
+
+
+
+</script>
+
 {% block main %}
+
+<head>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script type=text/javascript>
+      $(document).ready(function() {
+        $("#confirm_password").keyup(validate);
+      });
+
+
+      function validate() {
+        var password1 = $("#password").val();
+        var password2 = $("#confirm_password").val();
+
+
+
+          if(password1 == password2) {
+             $("#validate-status").text("Passwords match");
+          }
+          else {
+              $("#validate-status").text("Passwords do not match");
+          }
+
+      }
+    </script>
+
+
+</head>
 
 
 <div class="uk-card uk-card-default uk-card-small">
@@ -24,8 +57,15 @@
         </div>
         <div class="uk-margin">
             <span class="uk-form-icon uk-form-icon-flip" uk-icon="icon: lock"></span>
-            <input class="uk-input" name="password" placeholder="Password" type="password" required>
+            <input class="uk-input" type="password" name="password" placeholder="Password" id="password" required'/>
+
+            <input class="uk-input" type="password" name="confirm_password" placeholder="Confirm Password"  id="confirm_password"/>
+            <span id='message'></span>
+
+            <p id="validate-status"></p>
+
         </div>
+
         <div class="uk-margin">
             <input class="uk-input" name="company" placeholder="Company" type="text" required>
         </div>
@@ -39,6 +79,7 @@
           <p>Already have an account? <a href="/login">Click here to login</a></p>
         </div>
 </form>
+
 
 
 {% endblock %}

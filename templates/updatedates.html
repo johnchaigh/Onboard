@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Progress
+{% endblock %}
+
+{% block main %}
+
+<div class="uk-card uk-card-default uk-card-small">
+
+  <div class="uk-text-center uk-card-body">
+    <h3>{{rows[0]['firstname']}} {{rows[0]['lastname']}}</h3>
+    <p>Enrolled in: {{rows[0]['pathwayEnrolled']}}</p>
+    <form method="POST">
+    <p>Enrolled since: <input type="text" name="enrolleddate" value="{{rows[0]['pathwayEnrolledDate']}}"></p>
+
+
+  </div>
+
+  <div id="center">
+  <table class="uk-table uk-table-middle uk-table-divider">
+
+      <thead>
+        <th style="text-align: center; vertical-align: middle;">Stage</th>
+        <th style="text-align: center; vertical-align: middle;">Content</th>
+        <th style="text-align: center; vertical-align: middle;">Notes</th>
+        <th style="text-align: center; vertical-align: middle;">Date Completed</th>
+        <th></th>
+      </thead>
+      <tbody>
+        {% for pathwayprogress in pathwayprogress %}
+        <tr>
+          <td ><small>{{ pathwayprogress["stagenumber"] }}</small></td>
+          <td><small>{{ pathwayprogress["stagecontent"] }}</small></td>
+          <td><small>{{ pathwayprogress["stagenotes"] }}</small></td>
+          <td><input type="text" name="{{pathwayprogress["stagenumber"]}}" value="{{ pathwayprogress["datecompleted"] }}"></td>
+          <td><small><a href="/stagecomplete?id=delete&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}&pathwaystage={{pathwayprogress["stagenumber"]}}">X</a></small></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+
+      </form">
+  </table>
+  <button class="uk-button uk-button-primary" type="submit">Update Fields</button>
+</div>
+</div>
+
+{% endblock %}

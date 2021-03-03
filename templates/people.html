@@ -11,30 +11,33 @@ People
     <div class="uk-text-center uk-card-body">
       <h4>People</h4>
     </div>
-    <table class="uk-table uk-table-middle uk-table-divider" id="width">
+    <table class="uk-table uk-table-middle uk-table-divider">
       <thead>
-        <th>Name</th>
-        <th>Pathway Enrolled</th>
-        <th style="text-align: center; vertical-align: middle;">Progress</th>
+        <th><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="name" name='sort'>Name</button></form></th>
+        <th><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="pathway" name='sort'>Pathway</button></form></th>
+        <th style="text-align: center; vertical-align: middle;"><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="progress" name='sort'>Progress</button></form></th>
         <th style="text-align: center; vertical-align: middle;">Date Enrolled</th>
-        <th style="text-align: center; vertical-align: middle;">Days in</th>
+        <th style="text-align: center; vertical-align: middle;"><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="days" name='sort'>Days Enrolled</button></form></th>
+        <th style="text-align: center; vertical-align: middle;">Est Completion</th>
+        <th style="text-align: center; vertical-align: middle;"><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="score" name='sort'>Score</button></form></th>
 
       </thead>
       {% for rows in rows %}
       <tr>
-        <td><a href="/viewperson?name={{rows['email']}}">{{rows['firstname']}} {{rows['lastname']}}</a></td>
+        <td><a href="/viewperson?name={{rows['email']}}"><small>{{rows['firstname']}} {{rows['lastname']}}</small></a></td>
         <td><a href="/progress?name={{rows["email"]}}&pathway={{rows['pathwayEnrolled']}}"><small>{{rows['pathwayEnrolled']}}</small></a></td>
-        <td style="text-align: center; vertical-align: middle;">{{rows['pathwayEnrolledProgress']}}%</td>
-        <td style="text-align: center; vertical-align: middle;">{{rows['pathwayEnrolledDate']}}</td>
-        <td style="text-align: center; vertical-align: middle;">{{rows['daysinpathway']}}</td>
-
+        <td style="text-align: center; vertical-align: middle;"><small>{{rows['pathwayEnrolledProgress']}}%</small></td>
+        <td style="text-align: center; vertical-align: middle;"><small>{{rows['pathwayEnrolledDate']}}</small></td>
+        <td style="text-align: center; vertical-align: middle;"><small>{{rows['daysinpathway']}}</small></td>
+        <td style="text-align: center; vertical-align: middle;"><small>{{rows['estcompletion']}}</small></td>
+        <td style="text-align: center; vertical-align: middle;"><small>{{rows['score']}}</small></td>
       </tr>
       {% endfor %}
     </table>
 
   </div>
   <div id="center">
-    <a href="/newperson"> Add a Person</a>
+    <a href="/newperson">Add a Person</a>
   </div>
 
 </div>

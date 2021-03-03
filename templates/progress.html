@@ -10,10 +10,11 @@ Progress
 
   <div class="uk-text-center uk-card-body">
     <h3>{{rows[0]['firstname']}} {{rows[0]['lastname']}}</h3>
+    <p>Enrolled in: {{rows[0]['pathwayEnrolled']}}</p>
+    <p>Enrolled since: {{rows[0]['pathwayEnrolledDate']}}</p>
 
-    <h4>Enrolled in: {{rows[0]['pathwayEnrolled']}}</h4>
-  </div>
-
+<a class="uk-button uk-button-default" href="/updatedates?id=dates&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}"> Update Dates </a>
+</div>
   <table class="uk-table uk-table-middle uk-table-divider">
     <thead>
       <th>Stage</th>
@@ -21,6 +22,7 @@ Progress
       <th>Notes</th>
       <th>Owner</th>
       <th>Date Completed</th>
+      <th></th>
     </thead>
     <tbody>
       {% for pathwayprogress in pathwayprogress %}
@@ -30,6 +32,7 @@ Progress
         <td><small>{{ pathwayprogress["stagenotes"] }}</small></td>
         <td><small>{{ pathwayprogress["stageowner"] }}</small></td>
         <td><small>{{ pathwayprogress["datecompleted"] }}</small></td>
+        <td><small><a href="/stagecomplete?id=delete&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}&pathwaystage={{pathwayprogress["stagenumber"]}}">X</a></small></td>
       </tr>
       {% endfor %}
       {% for pathwayremaining in pathwayremaining %}
@@ -38,7 +41,7 @@ Progress
         <td><small>{{ pathwayremaining["stagecontent"] }}</small></td>
         <td><small>{{ pathwayremaining["stagenotes"] }}</small></td>
         <td><small>{{ pathwayremaining["stageowner"] }}</small></td>
-        <td><small><a href="/stagecomplete?name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}&pathwaystage={{pathwayremaining["stagenumber"]}}">Mark Complete</a></small></td>
+        <td><small><a href="/stagecomplete?id=complete&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}&pathwaystage={{pathwayremaining["stagenumber"]}}">Mark Complete</a></small></td>
       </tr>
       {% endfor %}
     </tbody>
