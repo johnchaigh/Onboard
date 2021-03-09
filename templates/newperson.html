@@ -35,11 +35,11 @@ New Person
     </div>
 
     <div class="uk-margin">
-      <p style="text-align: left;"> Where are they coming from?</p>
+      <p style="text-align: left;"> Lane:</p>
       <select class="uk-select" name="history">
-        <option>Bank</option>
-        <option>IFA</option>
-        <option>Other</option>
+        {% for row in rows%}
+        <option>{{row['pathwayName']}}</option>
+        {% endfor %}
       </select>
     </div>
 
@@ -56,7 +56,11 @@ New Person
 </div>
 
 <div class="uk-margin">
-  <input class="uk-input" name="businessWrittenYearToDate" placeholder="Business Written Year To Date" type="int">
+  <input class="uk-input" name="businessWrittenYearToDate" placeholder="Business Written Since Appointment" type="int">
+</div>
+
+<div class="uk-margin">
+  <input class="uk-input" name="minincome" placeholder="Minimum Income Threshhold" type="text" required>
 </div>
 
 <button class="uk-button uk-button-primary" type="submit">Submit</button>

@@ -231,11 +231,33 @@ def people():
                 estcompletion = ' '
                 score = 0
 
-
             db.execute("UPDATE people SET daysinpathway = ?, estcompletion = ?, score = ? WHERE email = ?", daysin, estcompletion, score, rows[i]['email'])
             i = i+1
 
-        return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows)
+
+        #Prepare data for charting on page
+
+        pathwayprogress = db.execute("SELECT pathwayEnrolledProgress from people WHERE pdm = ?", username)
+        pathwaydays = db.execute("SELECT daysinpathway from people WHERE pdm = ?", username)
+        labels = db.execute("SELECT email from people WHERE pdm = ?", username)
+
+        newlist = []
+        percent = []
+        datalabels = []
+        days = []
+
+        i = 0
+        while i < len(pathwayprogress):
+            percent.append(pathwayprogress[i]['pathwayEnrolledProgress'])
+            days.append(pathwaydays[i]['daysinpathway'])
+            datalabels.append(labels[i]['email'])
+            i = i+1
+
+        for h, w in zip(percent, days):
+            newlist.append({'x': h, 'y': w})
+        scatterdata = str(newlist).replace('\'', '')
+
+        return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows, data=scatterdata, labels = datalabels)
 
     elif request.method == "POST":
         db = SQL("sqlite:///onboard.db")
@@ -268,7 +290,29 @@ def people():
 
             rows = db.execute("SELECT * FROM people WHERE pdm = ? ORDER BY pathwayEnrolled", username)
 
-        return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows)
+        #Prepare data for charting on page
+
+        pathwayprogress = db.execute("SELECT pathwayEnrolledProgress from people WHERE pdm = ?", username)
+        pathwaydays = db.execute("SELECT daysinpathway from people WHERE pdm = ?", username)
+        labels = db.execute("SELECT email from people WHERE pdm = ?", username)
+
+        newlist = []
+        percent = []
+        datalabels = []
+        days = []
+
+        i = 0
+        while i < len(pathwayprogress):
+            percent.append(pathwayprogress[i]['pathwayEnrolledProgress'])
+            days.append(pathwaydays[i]['daysinpathway'])
+            datalabels.append(labels[i]['email'])
+            i = i+1
+
+        for h, w in zip(percent, days):
+            newlist.append({'x': h, 'y': w})
+        scatterdata = str(newlist).replace('\'', '')
+
+        return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows, data=scatterdata, labels = datalabels)
 
 @app.route("/newperson", methods=["GET", "POST"])
 @login_required
@@ -292,13 +336,14 @@ def newperson():
         personbam = request.form.get("bam")
         personhistory = request.form.get("history")
         personexemployeddeal = request.form.get("exemployeddeal")
+        minincome = request.form.get("minincome")
         personexemployeddealexpiry = request.form.get("exemployeddealexpiry")
         personbusinessWrittenPreviousMonth = request.form.get("businessWrittenPreviousMonth")
         personbusinessWrittenYearToDate = request.form.get("businessWrittenYearToDate")
 
-        database = db.execute("""CREATE TABLE IF NOT EXISTS people ('id' integer PRIMARY KEY NOT NULL, 'firstname' text NOT NULL, 'lastname' text NOT NULL, 'mobile' text NOT NULL, 'email' text NOT NULL, 'pdm' text NOT NULL, 'bam' text, 'pathwayEnrolled' text, 'pathwayEnrolledDate' text, 'pathwayEnrolledPosition' text, 'pathwayEnrolledProgress' integer,  'pathwayEnrolledPositionDate' text, 'history' text, 'exEmployedDeal' text, 'exEmployedDealExpiry' text, 'businessWrittenPreviousMonth' integer, 'businessWrittenYearToDate'  integer, 'daysinpathway' integer, 'estcompletion' text, 'score' int)""")
+        database = db.execute("""CREATE TABLE IF NOT EXISTS people ('id' integer PRIMARY KEY NOT NULL, 'firstname' text NOT NULL, 'lastname' text NOT NULL, 'mobile' text NOT NULL, 'email' text NOT NULL, 'pdm' text NOT NULL, 'bam' text, 'pathwayEnrolled' text, 'pathwayEnrolledDate' text, 'pathwayEnrolledPosition' text, 'pathwayEnrolledProgress' integer,  'pathwayEnrolledPositionDate' text, 'history' text, 'exEmployedDeal' text, 'exEmployedDealExpiry' text, 'businessWrittenPreviousMonth' integer, 'businessWrittenYearToDate'  integer, 'daysinpathway' integer, 'estcompletion' text, 'score' int, 'minincome' int)""")
 
-        db.execute("INSERT INTO people (firstname, lastname, mobile, email, pdm, bam, history, exEmployedDeal, exEmployedDealExpiry, businessWrittenPreviousMonth, businessWrittenYearToDate) VALUES(?,?,?,?,?,?,?,?,?,?,?)", personfirstname, personlastname, personmobile, personemail, username, personbam, personhistory, personexemployeddeal, personexemployeddealexpiry, personbusinessWrittenPreviousMonth, personbusinessWrittenYearToDate)
+        db.execute("INSERT INTO people (firstname, lastname, mobile, email, pdm, bam, history, exEmployedDeal, exEmployedDealExpiry, businessWrittenPreviousMonth, businessWrittenYearToDate, minincome) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", personfirstname, personlastname, personmobile, personemail, username, personbam, personhistory, personexemployeddeal, personexemployeddealexpiry, personbusinessWrittenPreviousMonth, personbusinessWrittenYearToDate, minincome)
 
         rows = db.execute("SELECT * FROM people WHERE pdm = ? AND email = ?", username, personemail)
 
@@ -315,7 +360,9 @@ def newperson():
         companymail = info[0]['companymail']
         fullname = firstname+''+lastname
 
-        return render_template("newperson.html", FullName = fullname)
+        rows = db.execute("SELECT pathwayName from pathways WHERE email = ?  ORDER by pathwayName", username)
+
+        return render_template("newperson.html", FullName = fullname, rows = rows)
 
 @app.route("/viewperson", methods=["GET", "POST"])
 @login_required
@@ -567,7 +614,11 @@ def enroll():
         lastname = x[1]
 
         person = db.execute("SELECT * from people WHERE firstname = ? AND lastname = ? AND pdm = ?", firstname, lastname, username)
+
+        print(person)
         personemail = person[0]['email']
+
+
 
 
         datetoday = (datetime.datetime.today().strftime ('%d'))+" / "+(datetime.datetime.today().strftime ('%m'))+" / "+(datetime.datetime.today().strftime ('%Y'))
@@ -804,12 +855,16 @@ def report():
             reportname = choicepathway
             rows = db.execute("SELECT * FROM pathwaystages WHERE email = ? AND pathwayName = ?", username, choicepathway)
 
-        filename = 'files/'+firstname+lastname+'_report_'+str(datetime.datetime.today().strftime ('%d%m%Y'))+'_'+reportname+'.csv'
+        #filename = 'files/'+firstname+lastname+'_report_'+str(datetime.datetime.today().strftime ('%d%m%Y'))+'_'+reportname+'.csv'
+
+        people = db.execute("SELECT * FROM people WHERE pdm = ?", username)
+        pathway = db.execute("SELECT * FROM pathways WHERE email = ?", username)
 
         df = pd.DataFrame(rows)
-        df.to_csv('static/files/export.csv')
+        link = 'static/files/'+ 'report_' + email +'.csv'
+        df.to_csv(link)
 
-        return render_template("report.html", FullName = fullname)
+        return render_template("report.html", FullName = fullname, link = link, people = people, pathway = pathway)
 
 @app.route("/delete", methods=["GET"])
 @login_required
@@ -904,7 +959,9 @@ def updatefields():
 
         rows = db.execute("SELECT DISTINCT * FROM people WHERE email = ?", personemail)
 
-        return render_template("updatefields.html", Fullname = fullname, rows = rows)
+        lanes = db.execute("SELECT pathwayName FROM pathways WHERE email = ? ORDER by pathwayName", username)
+
+        return render_template("updatefields.html", Fullname = fullname, rows = rows, lanes = lanes)
 
     else:
 
@@ -924,8 +981,9 @@ def updatefields():
         personexemployeddealexpiry = request.form.get("exemployeddealexpiry")
         personbusinessWrittenPreviousMonth = request.form.get("businessWrittenPreviousMonth")
         personbusinessWrittenYearToDate = request.form.get("businessWrittenYearToDate")
+        personbusinessWrittenYearToDate = request.form.get("minincome")
 
-        db.execute("UPDATE people SET mobile = ?, email = ?, bam = ?, history = ?, exEmployedDeal = ?, exEmployedDealExpiry = ?, businessWrittenPreviousMonth = ?, businessWrittenYearToDate = ? WHERE pdm = ?", personmobile, personemail, personbam, personhistory, personexemployeddeal, personexemployeddealexpiry, personbusinessWrittenPreviousMonth, personbusinessWrittenYearToDate, username)
+        db.execute("UPDATE people SET mobile = ?, email = ?, bam = ?, history = ?, exEmployedDeal = ?, exEmployedDealExpiry = ?, businessWrittenPreviousMonth = ?, businessWrittenYearToDate = ?, minincome = ? WHERE pdm = ? AND email = ?", personmobile, personemail, personbam, personhistory, personexemployeddeal, personexemployeddealexpiry, personbusinessWrittenPreviousMonth, personbusinessWrittenYearToDate, minincome, username, personemail)
 
         rows = db.execute("SELECT DISTINCT * FROM people WHERE email = ?", personemail)
 

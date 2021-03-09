@@ -17,6 +17,12 @@ Upload A Pathway
         Generate Reports
       </div>
 
+      {% if link is defined %}
+          <a href="{{link}}" download>Download report file</a>
+
+      {% else %}
+      {% endif %}
+
       <div class="uk-card uk-card-default uk-card-body">People</div>
       <form action="{{ url_for('report') }}" method="post">
         <select class="uk-select" id="form-horizontal-select" name="nameexport">

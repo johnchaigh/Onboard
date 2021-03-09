@@ -11,6 +11,62 @@ People
     <div class="uk-text-center uk-card-body">
       <h4>People</h4>
     </div>
+<div style="padding-right: 30px; padding-bottom: 80px">
+
+</style>
+  <canvas id="myChart1" height="150px"></canvas>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+   <script>
+   new Chart.Scatter(document.getElementById("myChart1"), {
+   type: 'scatter',
+   data: {
+     labels: {{ labels | safe }},
+     datasets: [{
+       data: {{ data | safe }},
+       showLine: false,
+       borderColor: "grey",
+       backgroundColor: "grey",
+       radius: 8
+     }],
+   },
+   options: {
+     tooltips: {
+       mode: 'index',
+             callbacks: {
+               title: function(tooltipItem, data) {
+         return data['labels'][tooltipItem[0]['index']];},
+                 label: function(tooltipItem) {
+                   return + Number(tooltipItem.yLabel) + " days in pathway";
+                 }
+             }
+         },
+            responsive: true,
+            legend: {display: false},
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Days in Pathway'
+                    }
+                }],
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: '% Progress through Pathway'
+                    },
+                }]
+            },
+            showLines: false
+
+          }
+   });
+
+
+
+  </script>
+</div>
+
+
     <table class="uk-table uk-table-middle uk-table-divider">
       <thead>
         <th><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="name" name='sort'>Name</button></form></th>

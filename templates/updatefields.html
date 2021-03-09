@@ -12,6 +12,7 @@ People
 
     <div class="uk-text-center uk-card-body">
       <h4>{{ rows[0]["firstname"] }} {{ rows[0]['lastname'] }}</h4>
+      <p>Email: {{ rows[0]['email'] }}</p>
     </div>
     <div class="center">
       <table class="uk-table uk-table-small">
@@ -24,11 +25,6 @@ People
             <td style="text-align: right;">Mobile Phone</td>
             <td><input type="text" name="mobile" value="{{ rows[0]['mobile'] }}"></td>
           </tr>
-          <tr>
-            <td style="text-align: right;">Email</td>
-            <td><input type="text" name="email" value="{{ rows[0]['email'] }}"></td>
-          </tr>
-          <tr>
             <td style="text-align: right;">Business A M</td>
             <td><input type="text" name="bam" value="{{ rows[0]['bam'] }}"></td>
           </tr>
@@ -36,10 +32,9 @@ People
             <td style="text-align: right;">History</td>
             <td>
               <select class="uk-select" name="history">
-                <option>{{ rows[0]['history'] }}</option>
-                <option>Bank</option>
-                <option>IFA</option>
-                <option>Other</option>
+                {% for lanes in lanes %}
+                <option>{{ lanes['pathwayName'] }}</option>
+                {% endfor %}
               </select>
             </td>
           </tr>
@@ -58,6 +53,10 @@ People
           <tr>
             <td style="text-align: right;">Business Written Previous Year</td>
             <td><input type="text" name="businessWrittenYearToDate" value="{{ rows[0]['businessWrittenYearToDate'] }}"></td>
+          </tr>
+          <tr>
+            <td style="text-align: right;">Minimum Income Threshold :</td>
+            <td><input type="text" name="minincome" value="{{ rows[0]['minincome'] }}"></td>
           </tr>
           </table>
           <br />
