@@ -235,24 +235,28 @@ def people():
             i = i+1
 
 
-        #Prepare data for charting on page
-
+        #Prepare data for charting on page V1
+        #Harvest info from DB
         pathwayprogress = db.execute("SELECT pathwayEnrolledProgress from people WHERE pdm = ?", username)
         pathwaydays = db.execute("SELECT daysinpathway from people WHERE pdm = ?", username)
-        labels = db.execute("SELECT email from people WHERE pdm = ?", username)
+        firstname = db.execute("SELECT firstname from people WHERE pdm = ?", username)
+        lastname = db.execute("SELECT lastname from people WHERE pdm = ?", username)
 
+        #Declare lists to format data
         newlist = []
         percent = []
         datalabels = []
         days = []
 
+        #Fill lists with information
         i = 0
         while i < len(pathwayprogress):
             percent.append(pathwayprogress[i]['pathwayEnrolledProgress'])
             days.append(pathwaydays[i]['daysinpathway'])
-            datalabels.append(labels[i]['email'])
+            datalabels.append(firstname[i]['firstname']+' '+lastname[i]['lastname'])
             i = i+1
 
+        #Combine lists into scatterdata variable
         for h, w in zip(percent, days):
             newlist.append({'x': h, 'y': w})
         scatterdata = str(newlist).replace('\'', '')
@@ -272,7 +276,7 @@ def people():
 
         if request.form.get('sort') == 'score':
 
-            rows = db.execute("SELECT * FROM people WHERE pdm = ? ORDER BY score ASC", username)
+            rows = db.execute("SELECT * FROM people WHERE pdm = ? ORDER BY score DESC", username)
 
         if request.form.get('sort') == 'days':
 

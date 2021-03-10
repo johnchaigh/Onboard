@@ -7,56 +7,96 @@ People
 {% block main %}
 
 <div class="uk-card uk-card-default uk-card-small">
+  <div class="uk-text-center uk-card-body">
+    <h4>People</h4>
+  </div>
   <div>
-    <div class="uk-text-center uk-card-body">
-      <h4>People</h4>
-    </div>
+
 <div style="padding-right: 30px; padding-bottom: 80px">
 
 </style>
   <canvas id="myChart1" height="150px"></canvas>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-trendline"></script>
    <script>
    new Chart.Scatter(document.getElementById("myChart1"), {
-   type: 'scatter',
+   type: 'bubble',
    data: {
      labels: {{ labels | safe }},
      datasets: [{
        data: {{ data | safe }},
        showLine: false,
-       borderColor: "grey",
-       backgroundColor: "grey",
-       radius: 8
-     }],
+       fill: true,
+       tension: 0.4,
+       borderColor: 'blue',
+       borderWidth: 1,
+       borderColor: "white",
+       backgroundColor: "rgba(0, 137, 255, 0.4)",
+       opacity: .1,
+       pointBackgroundColor: 'darkorange',
+       pointBorderColor: 'white',
+       pointRadius: 5,
+       pointHoverRadius: 7,
+       spanGaps: true,
+       trendlineLinear: {
+                style: "rgb(43 ,66 ,255, 0.3)",
+                lineStyle: "solid",
+                width: 2
+              }
+     },
+
+
+
+
+
+
+
+
+     ],
    },
    options: {
+     spanGaps: true,
      tooltips: {
        mode: 'index',
-             callbacks: {
+       intersect: false,
+       callbacks: {
                title: function(tooltipItem, data) {
          return data['labels'][tooltipItem[0]['index']];},
                  label: function(tooltipItem) {
-                   return + Number(tooltipItem.yLabel) + " days in pathway";
+                   return + Number(tooltipItem.yLabel) + " days in pathway" +', '+ Number(tooltipItem.xLabel)+"% complete";
                  }
              }
          },
             responsive: true,
             legend: {display: false},
-            scales: {
-                yAxes: [{
+      scales: {
+          xAxes: [{
+                  display: true,
+                  ticks: {
+                      beginAtZero: true,
+                      steps: 10,
+                      stepValue: 5,
+                      max: 100
+                      },
+                    scaleLabel: {
+                        display: true,
+                        labelString: '% Progress'
+                    }
+                }],
+          yAxes: [{
+                  display: true,
+                  ticks: {
+                      beginAtZero: true,
+
+                      },
                     scaleLabel: {
                         display: true,
                         labelString: 'Days in Pathway'
-                    }
-                }],
-                xAxes: [{
-                    scaleLabel: {
-                        display: true,
-                        labelString: '% Progress through Pathway'
-                    },
-                }]
+                          }
+                      }],
             },
-            showLines: false
+            showLines: true
 
           }
    });
