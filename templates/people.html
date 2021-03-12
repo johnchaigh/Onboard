@@ -12,13 +12,12 @@ People
   </div>
   <div>
 
-<div style="padding-right: 30px; padding-bottom: 80px">
+<div id="scatter" style="padding-left: 10px; padding-right: 30px; padding-bottom: 80px">
 
-</style>
   <canvas id="myChart1" height="150px"></canvas>
    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-trendline"></script>
+   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-trendline"></script>
    <script>
    new Chart.Scatter(document.getElementById("myChart1"), {
    type: 'bubble',
@@ -34,29 +33,24 @@ People
        borderColor: "white",
        backgroundColor: "rgba(0, 137, 255, 0.4)",
        opacity: .1,
-       pointBackgroundColor: 'darkorange',
+       pointBackgroundColor: {{bubblecolour | safe}},
        pointBorderColor: 'white',
-       pointRadius: 5,
-       pointHoverRadius: 7,
+       pointRadius: 8,
+       pointHoverRadius: 9,
        spanGaps: true,
        trendlineLinear: {
                 style: "rgb(43 ,66 ,255, 0.3)",
                 lineStyle: "solid",
                 width: 2
               }
-     },
-
-
-
-
-
-
-
-
-     ],
+     },],
    },
    options: {
-     spanGaps: true,
+     animation: {
+      easing: 'easeInOutQuad',
+      duration: 400
+    },
+    spanGaps: true,
      tooltips: {
        mode: 'index',
        intersect: false,
@@ -126,14 +120,18 @@ People
         <td style="text-align: center; vertical-align: middle;"><small>{{rows['pathwayEnrolledDate']}}</small></td>
         <td style="text-align: center; vertical-align: middle;"><small>{{rows['daysinpathway']}}</small></td>
         <td style="text-align: center; vertical-align: middle;"><small>{{rows['estcompletion']}}</small></td>
-        <td style="text-align: center; vertical-align: middle;"><small>{{rows['score']}}</small></td>
+        {% if rows['businessWrittenYearToDate'] >= (rows['daysinpathway'] * 165) %}
+          <td uk-tooltip="title: £{{rows['businessWrittenYearToDate'] - (rows['daysinpathway'] * 165)}} above target" style="text-align: center; vertical-align: middle;"><span class="badge badge-pill badge-primary">{{rows['score']}}</span></td>
+        {% else %}
+          <td uk-tooltip="title: £{{rows['businessWrittenYearToDate'] - (rows['daysinpathway'] * 165)}} short of target" style="text-align: center; vertical-align: middle;"><span class="badge badge-pill badge-danger">{{rows['score']}}</span></td>
+        {% endif %}
       </tr>
       {% endfor %}
     </table>
 
   </div>
   <div id="center">
-    <a href="/newperson">Add a Person</a>
+    <a href="/newperson" uk-icon="icon: plus; ratio: 2"></a>
   </div>
 
 </div>

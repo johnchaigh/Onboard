@@ -60,17 +60,6 @@ h4{
   padding: 30px;
 }
 
-.background {
-  background-image: url("images/onboard_homepage_background_1400x933px.jpg");
-  background: no-repeat center center fixed;
-  background-size: cover;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
-
-}
-
 .center {
   width:50%;
   height:50%;
@@ -79,14 +68,11 @@ h4{
 
 body{
 
-  background-image: url("images/ikaia-pal-V1GDlBQFrV0-unsplash.jpg");
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  background-image: url("images/onboard_homepage_background_1400x933px.jpg");
+  background-repeat: repeat;
   background-size: cover;
   background-color: #464646;
   height: 100vh;
-
 }
 
 .footer{
@@ -96,6 +82,18 @@ body{
   border-width: thin;
   border-color: black;
 
+}
+
+#chart {
+  height: 400px;
+  width: 400px;
+}
+
+#red{
+  color:Tomato;
+}
+#green {
+  color:MediumSeaGreen;
 }
 
 /* Color Theme Swatches in Hex */

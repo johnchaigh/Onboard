@@ -50,12 +50,6 @@ sess.init_app(app)
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///onboard.db")
 
-def days_between(d1, d2):
-    d1 = datetime.strptime(d1, "%Y-%m-%d")
-    d2 = datetime.strptime(d2, "%Y-%m-%d")
-
-    return abs((d2 - d1).days)
-
     # Upload folder
 UPLOAD_FOLDER = 'static/files'
 app.config['UPLOAD_FOLDER'] =  UPLOAD_FOLDER
@@ -112,7 +106,7 @@ def register():
         companymail = email.split("@")[1]
 
         # Create table for users
-        database = db.execute("CREATE TABLE IF NOT EXISTS users ('id' integer PRIMARY KEY NOT NULL, 'email' text NOT NULL, 'firstname' text NOT NULL,'lastname' text NOT NULL, 'password' text NOT NULL, 'company' text NOT NULL, 'jobrole' text NOT NULL,'companymail' text NOT NULL)")
+        #db.execute("CREATE TABLE IF NOT EXISTS users ('id' integer PRIMARY KEY NOT NULL, 'email' text NOT NULL, 'firstname' text NOT NULL,'lastname' text NOT NULL, 'password' text NOT NULL, 'company' text NOT NULL, 'jobrole' text NOT NULL,'companymail' text NOT NULL)")
 
         # Add user to database, if user already exists say eror username already exists
         row = db.execute("SELECT * FROM users WHERE email = ?", email)
@@ -241,11 +235,13 @@ def people():
         pathwaydays = db.execute("SELECT daysinpathway from people WHERE pdm = ?", username)
         firstname = db.execute("SELECT firstname from people WHERE pdm = ?", username)
         lastname = db.execute("SELECT lastname from people WHERE pdm = ?", username)
+        business = db.execute("SELECT businessWrittenYearToDate from people WHERE pdm = ?", username)
 
         #Declare lists to format data
         newlist = []
         percent = []
         datalabels = []
+        bubblecolour = []
         days = []
 
         #Fill lists with information
@@ -254,14 +250,24 @@ def people():
             percent.append(pathwayprogress[i]['pathwayEnrolledProgress'])
             days.append(pathwaydays[i]['daysinpathway'])
             datalabels.append(firstname[i]['firstname']+' '+lastname[i]['lastname'])
+            if (int(business[i]['businessWrittenYearToDate']) < (int(pathwaydays[i]['daysinpathway']) * 165)):
+                bubblecolour.append('tomato')
+            else:
+                bubblecolour.append('DodgerBlue')
             i = i+1
 
+        print (bubblecolour)
         #Combine lists into scatterdata variable
         for h, w in zip(percent, days):
             newlist.append({'x': h, 'y': w})
         scatterdata = str(newlist).replace('\'', '')
 
-        return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows, data=scatterdata, labels = datalabels)
+        #Prepare data for charting on page V2
+        #Harvest info from DB
+
+
+
+        return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows, data=scatterdata, bubblecolour = bubblecolour, labels = datalabels)
 
     elif request.method == "POST":
         db = SQL("sqlite:///onboard.db")
@@ -294,29 +300,44 @@ def people():
 
             rows = db.execute("SELECT * FROM people WHERE pdm = ? ORDER BY pathwayEnrolled", username)
 
-        #Prepare data for charting on page
-
+        #Prepare data for charting on page V1
+        #Harvest info from DB
         pathwayprogress = db.execute("SELECT pathwayEnrolledProgress from people WHERE pdm = ?", username)
         pathwaydays = db.execute("SELECT daysinpathway from people WHERE pdm = ?", username)
-        labels = db.execute("SELECT email from people WHERE pdm = ?", username)
+        firstname = db.execute("SELECT firstname from people WHERE pdm = ?", username)
+        lastname = db.execute("SELECT lastname from people WHERE pdm = ?", username)
+        business = db.execute("SELECT businessWrittenYearToDate from people WHERE pdm = ?", username)
 
+        #Declare lists to format data
         newlist = []
         percent = []
         datalabels = []
+        bubblecolour = []
         days = []
 
+        #Fill lists with information
         i = 0
         while i < len(pathwayprogress):
             percent.append(pathwayprogress[i]['pathwayEnrolledProgress'])
             days.append(pathwaydays[i]['daysinpathway'])
-            datalabels.append(labels[i]['email'])
+            datalabels.append(firstname[i]['firstname']+' '+lastname[i]['lastname'])
+            if (int(business[i]['businessWrittenYearToDate']) < (int(pathwaydays[i]['daysinpathway']) * 165)):
+                bubblecolour.append('tomato')
+            else:
+                bubblecolour.append('DodgerBlue')
             i = i+1
 
+        print (bubblecolour)
+        #Combine lists into scatterdata variable
         for h, w in zip(percent, days):
             newlist.append({'x': h, 'y': w})
         scatterdata = str(newlist).replace('\'', '')
 
-        return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows, data=scatterdata, labels = datalabels)
+        #Prepare data for charting on page V2
+        #Harvest info from DB
+
+        return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows, data=scatterdata, bubblecolour = bubblecolour, labels = datalabels)
+
 
 @app.route("/newperson", methods=["GET", "POST"])
 @login_required
@@ -345,7 +366,7 @@ def newperson():
         personbusinessWrittenPreviousMonth = request.form.get("businessWrittenPreviousMonth")
         personbusinessWrittenYearToDate = request.form.get("businessWrittenYearToDate")
 
-        database = db.execute("""CREATE TABLE IF NOT EXISTS people ('id' integer PRIMARY KEY NOT NULL, 'firstname' text NOT NULL, 'lastname' text NOT NULL, 'mobile' text NOT NULL, 'email' text NOT NULL, 'pdm' text NOT NULL, 'bam' text, 'pathwayEnrolled' text, 'pathwayEnrolledDate' text, 'pathwayEnrolledPosition' text, 'pathwayEnrolledProgress' integer,  'pathwayEnrolledPositionDate' text, 'history' text, 'exEmployedDeal' text, 'exEmployedDealExpiry' text, 'businessWrittenPreviousMonth' integer, 'businessWrittenYearToDate'  integer, 'daysinpathway' integer, 'estcompletion' text, 'score' int, 'minincome' int)""")
+        #db.execute("""CREATE TABLE IF NOT EXISTS people ('id' integer PRIMARY KEY NOT NULL, 'firstname' text NOT NULL, 'lastname' text NOT NULL, 'mobile' text NOT NULL, 'email' text NOT NULL, 'pdm' text NOT NULL, 'bam' text, 'pathwayEnrolled' text, 'pathwayEnrolledDate' text, 'pathwayEnrolledPosition' text, 'pathwayEnrolledProgress' integer,  'pathwayEnrolledPositionDate' text, 'history' text, 'exEmployedDeal' text, 'exEmployedDealExpiry' text, 'businessWrittenPreviousMonth' integer, 'businessWrittenYearToDate'  integer, 'daysinpathway' integer, 'estcompletion' text, 'score' int, 'minincome' int)""")
 
         db.execute("INSERT INTO people (firstname, lastname, mobile, email, pdm, bam, history, exEmployedDeal, exEmployedDealExpiry, businessWrittenPreviousMonth, businessWrittenYearToDate, minincome) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", personfirstname, personlastname, personmobile, personemail, username, personbam, personhistory, personexemployeddeal, personexemployeddealexpiry, personbusinessWrittenPreviousMonth, personbusinessWrittenYearToDate, minincome)
 
@@ -387,7 +408,17 @@ def viewperson():
 
         rows = db.execute("SELECT DISTINCT * FROM people WHERE email = ?", personemail)
 
-        return render_template("viewperson.html", Fullname = fullname, rows = rows)
+        targetnumber = int(rows[0]['daysinpathway']) * 165
+        resultnumber = int(rows[0]['businessWrittenYearToDate']) - targetnumber
+
+        if resultnumber < 0:
+            resultstring = '£'+str(resultnumber) + ' below target'
+            style = 'red'
+        else:
+            resultstring = '+£'+str(resultnumber) + ' above target'
+            style = 'green'
+
+        return render_template("viewperson.html", FullName = fullname, rows = rows, targetnumber = targetnumber, result = resultstring, style = style)
 
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
@@ -468,7 +499,7 @@ def newpathway():
         else:
             share = 'False'
 
-        database = db.execute("CREATE TABLE IF NOT EXISTS pathways ('id' integer PRIMARY KEY NOT NULL, 'pathwayName' text NOT NULL, 'pathwayDescription' text NOT NULL, 'share' text NOT NULL, 'email' text NOT NULL, 'companymail' text NOT NULL, 'enrolled' integer)")
+        #db.execute("CREATE TABLE IF NOT EXISTS pathways ('id' integer PRIMARY KEY NOT NULL, 'pathwayName' text NOT NULL, 'pathwayDescription' text NOT NULL, 'share' text NOT NULL, 'email' text NOT NULL, 'companymail' text NOT NULL, 'enrolled' integer)")
 
         # Add user to database, if user already exists say eror username already exists
         row = db.execute("SELECT * FROM pathways WHERE pathwayName = ? AND email = ?", pathwayName, username)
@@ -641,7 +672,7 @@ def enroll():
             pathwaystages = db.execute("SELECT * FROM pathwaystages where pathwayName = ?", pathway)
             position = int(rows[0]['pathwayEnrolledPosition'])
 
-            db.execute("CREATE TABLE IF NOT EXISTS pathwayprogress ('email' text NOT NULL, 'pathwayName' text NOT NULL, 'stagenumber' int, 'stagecontent' text, 'stageowner' text, 'stagenotes' text, 'datecompleted' text, 'completed' int ) ")
+            #db.execute("CREATE TABLE IF NOT EXISTS pathwayprogress ('email' text NOT NULL, 'pathwayName' text NOT NULL, 'stagenumber' int, 'stagecontent' text, 'stageowner' text, 'stagenotes' text, 'datecompleted' text, 'completed' int ) ")
             stagenumber = 0
             for i in pathwaystages:
                 db.execute("INSERT INTO pathwayprogress (email, pathwayName, stagenumber, stagecontent, stageowner, stagenotes, completed) VALUES (?,?,?,?,?,?,?)", personemail, pathway, pathwaystages[stagenumber]['stagenumber'], pathwaystages[stagenumber]['stagecontent'], pathwaystages[stagenumber]['stageowner'], pathwaystages[stagenumber]['stagenotes'], 0)
@@ -965,7 +996,7 @@ def updatefields():
 
         lanes = db.execute("SELECT pathwayName FROM pathways WHERE email = ? ORDER by pathwayName", username)
 
-        return render_template("updatefields.html", Fullname = fullname, rows = rows, lanes = lanes)
+        return render_template("updatefields.html", FullName = fullname, rows = rows, lanes = lanes)
 
     else:
 
@@ -985,14 +1016,23 @@ def updatefields():
         personexemployeddealexpiry = request.form.get("exemployeddealexpiry")
         personbusinessWrittenPreviousMonth = request.form.get("businessWrittenPreviousMonth")
         personbusinessWrittenYearToDate = request.form.get("businessWrittenYearToDate")
-        personbusinessWrittenYearToDate = request.form.get("minincome")
+        minincome = request.form.get("minincome")
 
         db.execute("UPDATE people SET mobile = ?, email = ?, bam = ?, history = ?, exEmployedDeal = ?, exEmployedDealExpiry = ?, businessWrittenPreviousMonth = ?, businessWrittenYearToDate = ?, minincome = ? WHERE pdm = ? AND email = ?", personmobile, personemail, personbam, personhistory, personexemployeddeal, personexemployeddealexpiry, personbusinessWrittenPreviousMonth, personbusinessWrittenYearToDate, minincome, username, personemail)
 
         rows = db.execute("SELECT DISTINCT * FROM people WHERE email = ?", personemail)
 
-        return render_template("viewperson.html", Fullname = fullname, rows = rows)
+        targetnumber = int(rows[0]['daysinpathway']) * 165
+        resultnumber = int(rows[0]['businessWrittenYearToDate']) - targetnumber
 
+        if resultnumber < 0:
+            resultstring = '£'+str(resultnumber) + ' below target'
+            style = 'red'
+        else:
+            resultstring = '+£'+str(resultnumber) + ' above target'
+            style = 'green'
+
+        return render_template("viewperson.html", FullName = fullname, rows = rows, targetnumber = targetnumber, result = resultstring, style = style)
 
 @app.route("/updatedates", methods=["GET", "POST"])
 @login_required
