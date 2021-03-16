@@ -16,15 +16,19 @@
 {% endblock %}
 
 {% block main %}
-<h4>Your Profile</h4>
+
+
+<div class="uk-card uk-card-default uk-card-small">
+<h4 class="uk-text uk-text-lighter">Your Profile</h4>
 <div id="center">
-  <table class="uk-table uk-table-divider">
+
+  <table class="uk-table uk-table-divider uk-text uk-text-lighter">
     <tr><td>{{firstname}} {{lastname}}</td></tr>
     <tr><td>Email: {{email}}</td></tr>
     <tr><td>{{jobrole}} at {{company}}</td></tr>
   </table>
 </div>
-
+</div>
 
 
 {% endblock %}

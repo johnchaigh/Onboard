@@ -9,23 +9,23 @@ Enroll
 <div class="uk-card uk-card-default uk-card-small">
 
   <div class="uk-text-center uk-card-body">
-    <h2>Enroll</h2>
+    <h2 class="uk-text uk-text-lighter">Enroll</h2>
   </div>
   <form action="/enroll" method="post" id="form">
-        <legend class="uk-legend">Select Person</legend>
+        <legend class="uk-text uk-text-lighter">Select Person</legend>
         <div class="uk-margin">
-            <select class="uk-select" name="name">
+            <select class="uk-select uk-text uk-text-lighter" name="name">
               {% for people in people %}
-                <option>{{people['firstname']}} {{people['lastname']}}</option>
+                <option class="uk-text uk-text-lighter">{{people['firstname']}} {{people['lastname']}}</option>
               {% endfor %}
             </select>
         </div>
 
-        <legend class="uk-legend">Select Pathway</legend>
+        <legend class="uk-text uk-text-lighter">Select Pathway</legend>
         <div class="uk-margin">
-            <select class="uk-select" name="pathway">
+            <select class="uk-select uk-text uk-text-lighter" name="pathway">
               {% for pathways in pathways %}
-                <option>{{pathways['pathwayName']}}</option>
+                <option class="uk-text uk-text-lighter">{{pathways['pathwayName']}}</option>
               {% endfor %}
             </select>
         </div>

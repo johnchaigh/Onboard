@@ -1,7 +1,7 @@
 # @Author: johnhaigh
 # @Date:   2020-12-29T17:16:37+00:00
 # @Last modified by:   johnhaigh
-# @Last modified time: 2021-03-03T17:57:50+00:00
+# @Last modified time: 2021-03-16T08:57:10+00:00
 
 #A web based application to track the onboarding of new recruits.
 
@@ -22,6 +22,8 @@ import os
 from os.path import join, dirname, realpath, expanduser
 import pandas as pd
 import csv
+import random
+
 
 # Configure application
 app = Flask(__name__)
@@ -262,10 +264,6 @@ def people():
             newlist.append({'x': h, 'y': w})
         scatterdata = str(newlist).replace('\'', '')
 
-        #Prepare data for charting on page V2
-        #Harvest info from DB
-
-
 
         return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows, data=scatterdata, bubblecolour = bubblecolour, labels = datalabels)
 
@@ -435,10 +433,80 @@ def dashboard():
 
         fullname = firstname + ' ' + lastname
 
-        pathways = len(db.execute("SELECT * from pathways WHERE email = ?", username))
-        people = len(db.execute("SELECT * from people WHERE pdm = ?", username))
+        #Data preperation for Chart1 Dashboard - Total Business Written
+        incomedata = []
+        incomelabels = []
+        incomedatacolours = []
 
-        return render_template("dashboard.html", firstname = firstname, FullName = fullname, pathwayNumber = pathways, people = people)
+        firstname = db.execute("SELECT firstname from people WHERE pdm = ?", username)
+        lastname = db.execute("SELECT lastname from people WHERE pdm = ?", username)
+        businessWrittenYearToDate = db.execute("SELECT businessWrittenYearToDate from people WHERE pdm = ?", username)
+
+        i = 0
+        totalbusiness = 0
+        while i < len(businessWrittenYearToDate):
+
+            incomedata.append(businessWrittenYearToDate[i]['businessWrittenYearToDate'])
+            totalbusiness = totalbusiness + businessWrittenYearToDate[i]['businessWrittenYearToDate']
+            name = firstname[i]['firstname'] + ' '+ lastname[i]['lastname']
+            incomelabels.append(name)
+            colour = f"#{random.randrange(0x1000000):06x}"
+            incomedatacolours.append(colour)
+            i = i+1
+
+        #Data preperation for Chart 2 Dashboard - Distribution of people
+        pathwaynames = []
+        pathwaynumbers = []
+        pathwaynumber = db.execute("SELECT enrolled from pathways where email = ?", username)
+        pathwayname = db.execute("SELECT pathwayName from pathways where email = ?", username)
+
+        i = 0
+        while i < len(pathwaynumber):
+
+            pathwaynames.append(pathwayname[i]['pathwayName'])
+            pathwaynumbers.append(pathwaynumber[i]['enrolled'])
+            i = i+1
+
+        #Data preperation for Table 3 Dashboard - Longest in pathway
+        rows = db.execute("SELECT * FROM people where pdm = ? ORDER BY daysinpathway DESC", username)
+
+        longestinpathwaydaysin = []
+        longestinpathwaynames = []
+
+        i = 0
+        while i < len(rows):
+
+            longestinpathwaydaysin.append(rows[i]['daysinpathway'])
+            longestinpathwaynames.append(rows[i]['firstname'] +" "+ rows[i]['lastname'])
+            i = i+1
+
+        #Data preperation for Table 4 Dashboard - Earnings performance against target
+
+        targetperformance = []
+        i = 0
+        while i < len(rows):
+
+            target = (rows[i]['daysinpathway'] * 165 )
+            result = (rows[i]['businessWrittenYearToDate'] - target)
+            targetperformance.append(result)
+            i = i+1
+
+        #Data preperation for Table 5 Dashboard - Top 5 People
+
+        score = []
+        scorenames = []
+        rows = db.execute("SELECT * FROM people where pdm = ? ORDER BY score DESC LIMIT 5", username)
+
+        i = 0
+        while i < len(rows):
+
+            scorenames.append(rows[i]['firstname'] + ' ' + rows[i]['lastname'])
+            score.append(rows[i]['score'])
+            i = i+1
+
+        print(score)
+        print(scorenames)
+        return render_template("dashboard.html", firstname = firstname, FullName = fullname, pathwayNumber = pathways, people = people, incomedata = incomedata, incomelabels = incomelabels, incomedatacolours = incomedatacolours, totalbusiness = totalbusiness, pathwaynames = pathwaynames, pathwaynumbers = pathwaynumbers, rows = rows, longestinpathwaydaysin = longestinpathwaydaysin, longestinpathwaynames = longestinpathwaynames, targetperformance = targetperformance, score = score, scorenames = scorenames)
 
 @app.route("/pathways", methods=["GET", "POST"])
 @login_required
@@ -756,6 +824,7 @@ def stagecomplete():
         numberofstages = int(stagenumber[0]['stagenumber'])
         completed = db.execute("SELECT * FROM pathwayprogress WHERE email = ? AND pathwayName = ? AND completed = 1", personemail, pathway)
         pathwaypercent = int(100 * (len(completed) / numberofstages) )
+
 
         db.execute("UPDATE people SET pathwayEnrolledPosition = ?, pathwayEnrolledProgress = ?,  pathwayEnrolledPositionDate = ?, pathwayEnrolledPosition = ? WHERE email = ?", pathwaystage, pathwaypercent, datetoday, pathwaystage, personemail)
 

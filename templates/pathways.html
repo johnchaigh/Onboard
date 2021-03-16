@@ -8,7 +8,7 @@ Pathways
   <div class="uk-card uk-card-default uk-card-small">
 
     <div class="uk-text-center uk-card-body">
-      <h4>Pathways</h4>
+      <h2 class="uk-text uk-text-lighter">Pathways</h2>
     </div>
 
 
@@ -29,7 +29,7 @@ Pathways
         <tr>
           <td><small><a href="/viewpathway?name={{pathway["pathwayName"]}}">{{ pathway["pathwayName"] }}</a></small></td>
           <td><small>{{ pathway["pathwayDescription"] }}</small></td>
-          <td style="text-align: center; vertical-align: middle;">{{ pathway["enrolled"] }}</td>
+          <td style="text-align: center; vertical-align: middle;"><small>{{ pathway["enrolled"] }}</small></td>
         </tr>
 
         {% endfor %}
@@ -41,6 +41,8 @@ Pathways
     <div id="center">
       <a href="/newpathway" uk-icon="icon: plus; ratio: 2"></a>
     </div>
+
+</div>
 
   </div>
 

@@ -8,40 +8,40 @@ Progress
 
 <div class="uk-card uk-card-default uk-card-small">
 
-  <div class="uk-text-center uk-card-body">
+  <div class="uk-text-center uk-card-body uk-text uk-text-lighter" id="width">
     <h3>{{rows[0]['firstname']}} {{rows[0]['lastname']}}</h3>
     <p>Enrolled in: {{rows[0]['pathwayEnrolled']}}</p>
     <p>Enrolled since: {{rows[0]['pathwayEnrolledDate']}}</p>
 
-<a class="uk-button uk-button-default" href="/updatedates?id=dates&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}"> Update Dates </a>
+<a class="uk-button uk-button-primary" href="/updatedates?id=dates&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}"> Update Dates </a>
 </div>
-  <table class="uk-table uk-table-middle uk-table-divider">
+  <table class="uk-table uk-table-middle uk-table-divider uk-text uk-text-lighter">
     <thead>
       <th>Stage</th>
       <th>Content</th>
       <th>Notes</th>
       <th>Owner</th>
       <th>Date Completed</th>
-      <th></th>
     </thead>
     <tbody>
       {% for pathwayprogress in pathwayprogress %}
-      <tr style="background-color:#ccffcc">
-        <td><small>{{ pathwayprogress["stagenumber"] }}</small></td>
-        <td><small>{{ pathwayprogress["stagecontent"] }}</small></td>
+      <tr style="background-color:#e0edf5">
+        <td style="text-align: center"><small>{{ pathwayprogress["stagenumber"] }}</small></td>
+        <td ><small>{{ pathwayprogress["stagecontent"] }}</small></td>
         <td><small>{{ pathwayprogress["stagenotes"] }}</small></td>
         <td><small>{{ pathwayprogress["stageowner"] }}</small></td>
         <td><small>{{ pathwayprogress["datecompleted"] }}</small></td>
-        <td><small><a href="/stagecomplete?id=delete&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}&pathwaystage={{pathwayprogress["stagenumber"]}}">X</a></small></td>
+        <td uk-tooltip="title: Mark Incomplete"><a href="/stagecomplete?id=delete&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}&pathwaystage={{pathwayprogress["stagenumber"]}}" class="uk-icon-button" uk-icon="close"></a></td>
       </tr>
       {% endfor %}
+      <tr></tr>
       {% for pathwayremaining in pathwayremaining %}
       <tr style="background-color:#f7f7f7">
-        <td><small>{{ pathwayremaining["stagenumber"] }}</small></td>
+        <td style="text-align: center"><small>{{ pathwayremaining["stagenumber"] }}</small></td>
         <td><small>{{ pathwayremaining["stagecontent"] }}</small></td>
         <td><small>{{ pathwayremaining["stagenotes"] }}</small></td>
         <td><small>{{ pathwayremaining["stageowner"] }}</small></td>
-        <td><small><a href="/stagecomplete?id=complete&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}&pathwaystage={{pathwayremaining["stagenumber"]}}">Mark Complete</a></small></td>
+        <td uk-tooltip="title: Mark Complete" colspan="2" style="text-align: right"><a href="/stagecomplete?id=complete&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}&pathwaystage={{pathwayremaining["stagenumber"]}}" class="uk-icon-button" uk-icon="icon: check; ratio: 1.2"></a></td>
       </tr>
       {% endfor %}
     </tbody>

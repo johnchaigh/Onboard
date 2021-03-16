@@ -12,15 +12,15 @@
 
     <div class="uk-text-center uk-card-body">
       <h3>{{ rows[0]["firstname"] }} {{ rows[0]['lastname'] }}</h3>
-      <span class="uk-badge"> Score: {{rows[0]['score']}} </span>
+      <span class="uk-badge uk-badge-success"><span uk-icon="icon: bolt; ratio: 0.8">{{rows[0]['score']}}</span></span>
     </div>
 
     <ul uk-accordion="multiple: true">
       <li class="uk-open">
           <a class="uk-accordion-title" href="#">Business Written</a>
           <div class="uk-accordion-content">
-            <table class="uk-table uk-table-small">
-              <tr><td>Business Target For Appointment Duration : £{{targetnumber}}</td></tr>
+            <table class="uk-table uk-table-small uk-text uk-text-lighter">
+              <tr><td >Business Target For Appointment Duration : £{{targetnumber}}</td></tr>
               <tr><td {{style}}>Business Written Since Appointment : £{{ rows[0]['businessWrittenYearToDate'] }}   <td id="{{style}}">{{result}}</td></tr>
 
               <tr><td>Ex-employed deal: £{{ rows[0]['exEmployedDeal'] }}, expires in {{ rows[0]['exEmployedDealExpiry'] }} </td></tr>
@@ -32,8 +32,8 @@
         <li class="uk-open">
             <a class="uk-accordion-title" href="#">Pathway</a>
             <div class="uk-accordion-content">
-              <table class="uk-table uk-table-small">
-                <tr><td>Enrolled in: <a href="/progress?name={{rows["email"]}}&pathway={{rows[0]['pathwayEnrolled']}}">{{rows[0]['pathwayEnrolled']}}</a></td></tr>
+              <table class="uk-table uk-table-small uk-text uk-text-lighter">
+                <tr><td>Enrolled in: <a href="/progress?name={{rows[0]["email"]}}&pathway={{rows[0]['pathwayEnrolled']}}">{{rows[0]['pathwayEnrolled']}}</a></td></tr>
                 <tr><td>Progress: {{rows[0]['pathwayEnrolledProgress']}}%</td></tr>
                 <tr><td>Enrolled Since: {{rows[0]['pathwayEnrolledDate']}} ({{rows[0]['daysinpathway']}} days)</td><tr>
                 <tr><td>Expected To Graduate On: {{rows[0]['estcompletion']}}</td></tr>
@@ -43,7 +43,7 @@
         <li>
             <a class="uk-accordion-title" href="#">Contact Information</a>
             <div class="uk-accordion-content">
-              <table class="uk-table uk-table-small">
+              <table class="uk-table uk-table-small uk-text uk-text-lighter">
               <tr><td>Mobile Phone: {{ rows[0]['mobile'] }} </td></tr>
               <tr><td>Email: {{ rows[0]['email'] }} </td></tr>
               <tr><td>Business Manager: {{ rows[0]['bam'] }} </td></tr>
