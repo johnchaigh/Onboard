@@ -1,7 +1,7 @@
 # @Author: johnhaigh
 # @Date:   2020-12-29T17:16:37+00:00
 # @Last modified by:   johnhaigh
-# @Last modified time: 2021-03-16T08:57:10+00:00
+# @Last modified time: 2021-03-17T20:03:13+00:00
 
 #A web based application to track the onboarding of new recruits.
 
@@ -173,8 +173,6 @@ def people():
 
         rows = db.execute("SELECT * FROM people WHERE pdm = ?", username)
 
-        # TODO: Add in calculation for days in pathway
-
         daytoday = int(datetime.datetime.today().strftime ('%d'))
         monthtoday = int(datetime.datetime.today().strftime ('%m'))
         yeartoday = int(datetime.datetime.today().strftime ('%Y'))
@@ -258,12 +256,10 @@ def people():
                 bubblecolour.append('DodgerBlue')
             i = i+1
 
-        print (bubblecolour)
         #Combine lists into scatterdata variable
         for h, w in zip(percent, days):
             newlist.append({'x': h, 'y': w})
         scatterdata = str(newlist).replace('\'', '')
-
 
         return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows, data=scatterdata, bubblecolour = bubblecolour, labels = datalabels)
 
@@ -330,9 +326,6 @@ def people():
         for h, w in zip(percent, days):
             newlist.append({'x': h, 'y': w})
         scatterdata = str(newlist).replace('\'', '')
-
-        #Prepare data for charting on page V2
-        #Harvest info from DB
 
         return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows, data=scatterdata, bubblecolour = bubblecolour, labels = datalabels)
 
@@ -433,14 +426,75 @@ def dashboard():
 
         fullname = firstname + ' ' + lastname
 
+        rows = db.execute("SELECT * FROM people WHERE pdm = ?", username)
+
+        daytoday = int(datetime.datetime.today().strftime ('%d'))
+        monthtoday = int(datetime.datetime.today().strftime ('%m'))
+        yeartoday = int(datetime.datetime.today().strftime ('%Y'))
+        i = 0
+        daysin = {}
+
+        #Update length of time they've been enrolled in the pathway
+
+        for row in rows:
+
+            dateenrolled = rows[i]['pathwayEnrolledDate']
+            if dateenrolled != None:
+
+                x = dateenrolled.split("/", 3)
+                yearenrolled = (int(x[2]))
+                monthenroleld = (int(x[1]))
+                dayenrolled = (int(x[0]))
+
+                d0 = date(yearenrolled, monthenroleld, dayenrolled)
+                d1 = date(yeartoday, monthtoday, daytoday)
+                delta = d1 - d0
+                daysin = delta.days
+
+                if daysin != 0:
+
+                    #Based on rate of progress estimate a completion date
+
+                    progressnumber = int(rows[i]['pathwayEnrolledProgress'])
+                    score = round((progressnumber / daysin), 2)
+
+            db.execute("UPDATE people SET daysinpathway = ?, score = ? WHERE email = ?", daysin, score, rows[i]['email'])
+            i = i+1
+
+        #Prepare data for Progress / Time chart
+        #Harvest info from DB
+        pathwayprogress = db.execute("SELECT pathwayEnrolledProgress from people WHERE pdm = ?", username)
+        pathwaydays = db.execute("SELECT daysinpathway from people WHERE pdm = ?", username)
+        firstname = db.execute("SELECT firstname from people WHERE pdm = ?", username)
+        lastname = db.execute("SELECT lastname from people WHERE pdm = ?", username)
+
+        #Declare lists to format data
+        newlist = []
+        percent = []
+        datalabels = []
+        days = []
+
+        #Fill lists with information
+        i = 0
+        while i < len(pathwayprogress):
+            percent.append(pathwayprogress[i]['pathwayEnrolledProgress'])
+            days.append(pathwaydays[i]['daysinpathway'])
+            datalabels.append(firstname[i]['firstname']+' '+lastname[i]['lastname'])
+            i = i+1
+
+        #Combine lists into scatterdata variable
+        for h, w in zip(percent, days):
+            newlist.append({'x': h, 'y': w})
+        scatterdata = str(newlist).replace('\'', '')
+
         #Data preperation for Chart1 Dashboard - Total Business Written
         incomedata = []
         incomelabels = []
         incomedatacolours = []
 
-        firstname = db.execute("SELECT firstname from people WHERE pdm = ?", username)
-        lastname = db.execute("SELECT lastname from people WHERE pdm = ?", username)
-        businessWrittenYearToDate = db.execute("SELECT businessWrittenYearToDate from people WHERE pdm = ?", username)
+        firstname = db.execute("SELECT firstname from people WHERE pdm = ? ORDER BY businessWrittenYearToDate", username)
+        lastname = db.execute("SELECT lastname from people WHERE pdm = ? ORDER BY businessWrittenYearToDate", username)
+        businessWrittenYearToDate = db.execute("SELECT businessWrittenYearToDate from people WHERE pdm = ? ORDER BY businessWrittenYearToDate", username)
 
         i = 0
         totalbusiness = 0
@@ -468,7 +522,7 @@ def dashboard():
             i = i+1
 
         #Data preperation for Table 3 Dashboard - Longest in pathway
-        rows = db.execute("SELECT * FROM people where pdm = ? ORDER BY daysinpathway DESC", username)
+        rows = db.execute("SELECT * FROM people where pdm = ?", username)
 
         longestinpathwaydaysin = []
         longestinpathwaynames = []
@@ -495,7 +549,7 @@ def dashboard():
 
         score = []
         scorenames = []
-        rows = db.execute("SELECT * FROM people where pdm = ? ORDER BY score DESC LIMIT 5", username)
+        rows = db.execute("SELECT * FROM people where pdm = ?", username)
 
         i = 0
         while i < len(rows):
@@ -504,9 +558,7 @@ def dashboard():
             score.append(rows[i]['score'])
             i = i+1
 
-        print(score)
-        print(scorenames)
-        return render_template("dashboard.html", firstname = firstname, FullName = fullname, pathwayNumber = pathways, people = people, incomedata = incomedata, incomelabels = incomelabels, incomedatacolours = incomedatacolours, totalbusiness = totalbusiness, pathwaynames = pathwaynames, pathwaynumbers = pathwaynumbers, rows = rows, longestinpathwaydaysin = longestinpathwaydaysin, longestinpathwaynames = longestinpathwaynames, targetperformance = targetperformance, score = score, scorenames = scorenames)
+        return render_template("dashboard.html", firstname = firstname, FullName = fullname, pathwayNumber = pathways, people = people, incomedata = incomedata, incomelabels = incomelabels, incomedatacolours = incomedatacolours, totalbusiness = totalbusiness, pathwaynames = pathwaynames, pathwaynumbers = pathwaynumbers, rows = rows, longestinpathwaydaysin = longestinpathwaydaysin, longestinpathwaynames = longestinpathwaynames, targetperformance = targetperformance, score = score, scorenames = scorenames, scatterdata=scatterdata, labels = datalabels)
 
 @app.route("/pathways", methods=["GET", "POST"])
 @login_required

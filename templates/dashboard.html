@@ -102,7 +102,7 @@ Dashboard
 
         <li data-color="progress">
             <div class="uk-card uk-card-default uk-card-body">
-              <p class="uk-text uk-text-lighter">Longest in Pathway<p>
+              <p class="uk-text uk-text-lighter">Days in Pathway<p>
                 <canvas id="longestinpathway"></canvas>
                 <script>
 
@@ -176,7 +176,7 @@ Dashboard
 
         <li data-color="progress">
             <div class="uk-card uk-card-default uk-card-body">
-              <p class="uk-text uk-text-lighter">Top 5 Pathway Progression<p>
+              <p class="uk-text uk-text-lighter">Score<p>
                 <canvas id="topprogression"></canvas>
                 <script>
 
@@ -208,6 +208,97 @@ Dashboard
                     }
                 });
                 </script>
+            </div>
+        </li>
+
+        <li data-color="progress">
+            <div class="uk-card uk-card-default uk-card-body">
+              <p class="uk-text uk-text-lighter">Time / Progress<p>
+                  <canvas id="myChart1"></canvas>
+                   <script>
+                   new Chart.Scatter(document.getElementById("myChart1"), {
+                   type: 'scatter',
+                   data: {
+                     labels: {{ labels | safe }},
+                     datasets: [{
+                       data: {{ scatterdata | safe }},
+                       showLine: false,
+                       fill: true,
+                       tension: 0.4,
+                       borderColor: 'blue',
+                       borderWidth: 1,
+                       borderColor: "white",
+                       backgroundColor: "rgba(0, 137, 255, 0.4)",
+                       opacity: .1,
+                       pointBackgroundColor: {{ incomedatacolours | safe }},
+                       pointBorderColor: 'white',
+                       pointRadius: 8,
+                       pointHoverRadius: 9,
+                       spanGaps: true,
+                       trendlineLinear: {
+                                style: "rgb(43 ,66 ,255, 0.3)",
+                                lineStyle: "solid",
+                                width: 1
+                              }
+                     },],
+                   },
+                   options: {
+                     animation: {
+                      easing: 'easeInOutQuad',
+                      duration: 400
+                    },
+                    spanGaps: true,
+                     tooltips: {
+                       mode: 'index',
+                       intersect: false,
+                       callbacks: {
+                               title: function(tooltipItem, data) {
+                         return data['labels'][tooltipItem[0]['index']];},
+                                 label: function(tooltipItem) {
+                                   return + Number(tooltipItem.yLabel) + " days in pathway" +', '+ Number(tooltipItem.xLabel)+"% complete";
+                                 }
+                             }
+                         },
+                            responsive: true,
+                            legend: {display: false},
+                      scales: {
+                          xAxes: [{
+                                  display: true,
+                                  ticks: {
+                                      beginAtZero: true,
+                                      steps: 10,
+                                      stepValue: 5,
+                                      max: 100
+                                      },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: '% Progress'
+                                    }
+                                }],
+                          yAxes: [{
+                                  display: true,
+                                  ticks: {
+                                      beginAtZero: true,
+
+                                      },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Days in Pathway'
+                                          }
+                                      }],
+                            },
+                            showLines: true
+
+                          }
+                   });
+
+
+
+                  </script>
+
+
+                </script>
+
             </div>
         </li>
 
