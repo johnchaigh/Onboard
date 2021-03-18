@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Log In
+{% endblock %}
+
+{% block main %}
+
+<div class="uk-card uk-card-default uk-card-small">
+
+  <div class="uk-text-center uk-card-body">
+    <div>
+      <button class="uk-button uk-button-primary" href="{{link}}" download>Download</button>
+    </div>
+    <div>
+      <br>
+      <button class="uk-button uk-button-secondary" onclick="goBack()">Go Back</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function goBack() {
+    window.history.back();
+  }
+</script>
+
+{% endblock %}

@@ -3,7 +3,8 @@
 # @Last modified by:   johnhaigh
 # @Last modified time: 2021-03-17T20:03:13+00:00
 
-#A web based application to track the onboarding of new recruits.
+#A web based application to track the onboarding of new recruits
+
 
 import os
 import sqlite3
@@ -20,10 +21,10 @@ from datetime import date
 from functools import wraps
 import os
 from os.path import join, dirname, realpath, expanduser
-import pandas as pd
 import csv
 import random
-
+import pandas as pd
+import shutil
 
 # Configure application
 app = Flask(__name__)
@@ -492,9 +493,9 @@ def dashboard():
         incomelabels = []
         incomedatacolours = []
 
-        firstname = db.execute("SELECT firstname from people WHERE pdm = ? ORDER BY businessWrittenYearToDate", username)
-        lastname = db.execute("SELECT lastname from people WHERE pdm = ? ORDER BY businessWrittenYearToDate", username)
-        businessWrittenYearToDate = db.execute("SELECT businessWrittenYearToDate from people WHERE pdm = ? ORDER BY businessWrittenYearToDate", username)
+        firstname = db.execute("SELECT firstname from people WHERE pdm = ?", username)
+        lastname = db.execute("SELECT lastname from people WHERE pdm = ?", username)
+        businessWrittenYearToDate = db.execute("SELECT businessWrittenYearToDate from people WHERE pdm = ?", username)
 
         i = 0
         totalbusiness = 0
@@ -1216,6 +1217,25 @@ def updatedates():
 
         return render_template("progress.html", FullName = fullname, pathwayprogress = pathwayprogress, pathwayremaining = pathwayremaining, rows = rows)
 
+@app.route("/backup", methods=["GET"])
+def backup():
+
+    # Create a backup of the onboard.db file
+
+    if request.method == "GET":
+
+        db = SQL("sqlite:///onboard.db")
+
+        import shutil
+
+        original = r'onboard.db'
+        target = r'static/files/onboard.db'
+
+        shutil.copyfile(original, target)
+
+        link = "static/files/onboard.db"
+
+    return render_template("backup.html", link = link)
 
 if __name__ == '__main__':
     app.run(debug=True)
