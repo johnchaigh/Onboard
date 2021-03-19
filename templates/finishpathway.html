@@ -9,7 +9,7 @@ Pathways
 <div class="uk-card uk-card-default uk-card-small">
 
     <div class="uk-text-center uk-card-body">
-      <h4>{{pathwayName}}</h4>
+      <h2 class="uk-text-center uk-text uk-text-lighter" >{{pathwayName}}</h2>
     </div>
 
     <div id="center">
@@ -17,7 +17,7 @@ Pathways
     </div>
 
 
-  <table class="uk-table uk-table-middle uk-table-divider">
+  <table class="uk-table uk-table-middle uk-table-divider uk-text uk-text-lighter">
   <thead>
 
     <th class="uk-table-small">Stage</th>
@@ -32,7 +32,7 @@ Pathways
       {% for row in rows %}
 
       <tr>
-        <td> {{ row["stagenumber"] }}</td>
+        <td>{{ row["stagenumber"] }}</td>
         <td>{{ row["stagecontent"] }}</td>
         <td>{{ row["stageowner"] }}</td>
         <td>{{ row["stagenotes"] }}</td>

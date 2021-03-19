@@ -774,9 +774,6 @@ def enroll():
         print(person)
         personemail = person[0]['email']
 
-
-
-
         datetoday = (datetime.datetime.today().strftime ('%d'))+" / "+(datetime.datetime.today().strftime ('%m'))+" / "+(datetime.datetime.today().strftime ('%Y'))
 
         #Check to see if user already enrolled in a pathway
@@ -787,7 +784,7 @@ def enroll():
         if pathwaystring == 'None':
 
             daysin = 1
-            db.execute("UPDATE people SET pathwayEnrolledDate = ?, pathwayEnrolled = ?, pathwayEnrolledPosition = ?, pathwayEnrolledProgress = ?, pathwayEnrolledPositionDate = ?, daysinpathway = 0, estcompletion = ?, score = 0 WHERE email = ?", datetoday, pathway , 0 , 0 , datetoday, 'Not yet known', personemail)
+            db.execute("UPDATE people SET pathwayEnrolledDate = ?, pathwayEnrolled = ?, pathwayEnrolledPosition = ?, pathwayEnrolledProgress = ?, pathwayEnrolledPositionDate = ?, daysinpathway = 1, estcompletion = ?, score = 0 WHERE email = ?", datetoday, pathway , 0 , 0 , datetoday, 'Not yet known', personemail)
             db.execute("UPDATE pathways SET enrolled = enrolled + 1 WHERE pathwayNAME = ? AND email = ?", pathway, username)
             rows = db.execute("SELECT * FROM people where email = ?", personemail)
             pathwaystages = db.execute("SELECT * FROM pathwaystages where pathwayName = ?", pathway)
@@ -1051,7 +1048,7 @@ def delete():
             rows = db.execute("SELECT * from people WHERE pathwayEnrolled = ? AND email = ?", pathway, personemail)
 
             db.execute("DELETE FROM pathwayprogress WHERE email = ?", personemail)
-            db.execute("UPDATE people SET pathwayEnrolledDate = NULL, pathwayEnrolled = NULL, pathwayEnrolledPosition = NULL, pathwayEnrolledProgress = NULL,  pathwayEnrolledPositionDate = NULL, score = Null, daysinpathway = Null, estcompletion = Null WHERE email = ?", personemail)
+            db.execute("UPDATE people SET pathwayEnrolledDate = NULL, pathwayEnrolled = NULL, pathwayEnrolledPosition = NULL, pathwayEnrolledProgress = NULL,  pathwayEnrolledPositionDate = NULL, score = 0, daysinpathway = Null, estcompletion = Null WHERE email = ?", personemail)
             db.execute("UPDATE pathways SET enrolled = enrolled - 1 WHERE pathwayNAME = ? AND email = ?", pathway, username)
 
             deleted = ('Removed from '+pathway)
