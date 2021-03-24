@@ -10,10 +10,10 @@ New Person
 <div class="uk-card uk-card-default uk-card-small">
 
   <div class="uk-text-center uk-card-body">
-    <h4>Add A New Person</h4>
+      <h2 class="uk-text-center uk-text uk-text-lighter">Add A New Person</h2>
   </div>
 
-  <form action="/newperson" method="post" id="form">
+  <form action="/newperson" method="post" id="form" class="uk-text-center uk-text uk-text-lighter">
     <div class="uk-margin">
       <input autocomplete="off" autofocus class="uk-input" name="firstname" placeholder="First Name" type="text" required>
     </div>
@@ -35,7 +35,7 @@ New Person
     </div>
 
     <div class="uk-margin">
-      <p style="text-align: left;"> Lane:</p>
+      <p style="text-align: left;" class="uk-text-left uk-text uk-text-lighter"> Lane:</p>
       <select class="uk-select" name="history">
         {% for row in rows%}
         <option>{{row['pathwayName']}}</option>
@@ -61,6 +61,10 @@ New Person
 
 <div class="uk-margin">
   <input class="uk-input" name="minincome" placeholder="Minimum Income Threshhold" type="text" required>
+</div>
+
+<div class="uk-margin">
+  <input class="uk-input" name="practice" placeholder="Practice" type="text">
 </div>
 
 <button class="uk-button uk-button-primary" type="submit">Submit</button>

@@ -13,7 +13,9 @@ Progress
     <p>Enrolled in: {{rows[0]['pathwayEnrolled']}}</p>
     <form method="POST">
     <p>Enrolled since: <input type="text" name="enrolleddate" value="{{rows[0]['pathwayEnrolledDate']}}"></p>
-
+    {% if rows[0]['appointed'] == 1 %}
+    <p>Appointed since: <td><input type="text" name="appointed" value="{{ rows[0]['dateappointed'] }}"></td>
+    {% endif %}
 
   </div>
 

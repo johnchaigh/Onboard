@@ -12,6 +12,9 @@ Progress
     <h3>{{rows[0]['firstname']}} {{rows[0]['lastname']}}</h3>
     <p>Enrolled in: {{rows[0]['pathwayEnrolled']}}</p>
     <p>Enrolled since: {{rows[0]['pathwayEnrolledDate']}}</p>
+    {% if rows[0]['appointed'] == 1 %}
+      <p>Appointment date: {{rows[0]['dateappointed']}}</p>
+    {% endif %}
 
 <a class="uk-button uk-button-primary" href="/updatedates?id=dates&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}"> Update Dates </a>
 </div>
@@ -41,7 +44,7 @@ Progress
         <td><small>{{ pathwayremaining["stagecontent"] }}</small></td>
         <td><small>{{ pathwayremaining["stagenotes"] }}</small></td>
         <td><small>{{ pathwayremaining["stageowner"] }}</small></td>
-        <td uk-tooltip="title: Mark Complete" colspan="2" style="text-align: right"><a href="/stagecomplete?id=complete&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}&pathwaystage={{pathwayremaining["stagenumber"]}}" class="uk-icon-button" uk-icon="icon: check; ratio: 1.2"></a></td>
+        <td colspan="2" style="text-align: right"><a href="/stagecomplete?id=complete&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}&pathwaystage={{pathwayremaining["stagenumber"]}}" class="uk-icon-button" uk-icon="icon: check; ratio: 1.2"></a></td>
       </tr>
       {% endfor %}
     </tbody>
@@ -49,7 +52,22 @@ Progress
 
   <div id="center">
     <a href="/pathways" class="uk-button uk-button-primary">Back To Pathways</a>
-    <a a href="/delete?id=enroll&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}" class="uk-button uk-button-danger" onclick="return confirm('Are you sure you want to remove this person? This cannot be undone.')">Remove from pathway</a>
+    <button class="uk-button uk-button-danger uk-margin-small-right" type="button" uk-toggle="target: #modal-example">Remove From Pathway</button>
   </div </div>
+
+  <div id="center">
+
+
+
+    <div id="modal-example" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">Warning!</h2>
+        <p>Are you sure you want to remove this person? This cannot be undone.</p>
+        <p class="uk-text-right">
+            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+            <a href="/delete?id=enroll&name={{rows[0]["email"]}}&pathwayname={{rows[0]['pathwayEnrolled']}}" class="uk-button uk-button-danger" type="button">Confirm</a>
+        </p>
+    </div>
+</div>
 
   {% endblock %}

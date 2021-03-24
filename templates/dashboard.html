@@ -31,16 +31,18 @@ Dashboard
         </div>
     </div>
 
-
+ {% if colours is defined %}
 
   <div  class="uk-padding" uk-filter="target: .js-filter">
     <ul class="uk-subnav uk-subnav-pill uk-text-center" id="center">
         <li class="uk-active" uk-filter-control><a href="#">All</a></li>
         <li uk-filter-control="[data-color='business']"><a href="#">Business Performance</a></li>
         <li uk-filter-control="[data-color='progress']"><a href="#">Pathway Performance</a></li>
+        <li uk-filter-control="[data-color='preappointment']"><a href="#">Pre Appointment</a></li>
     </ul>
 
-    <ul class="js-filter uk-child-width-1-2 uk-text-center" uk-grid>
+    <ul class="js-filter uk-grid-small uk-child-width-1-2@s uk-flex uk-text-center" uk-grid>
+
         <li data-color="business">
             <div class="uk-card uk-card-default uk-card-body">
               <p class="uk-text uk-text-lighter">Total Business: £{{ totalbusiness }}<p>
@@ -51,10 +53,10 @@ Dashboard
                   var incomechart1 = document.getElementById("incomechart1");
 
                   var income = {
-                    labels: {{ incomelabels | safe }},
+                    labels: {{ names | safe }},
                     datasets: [{
                       data: {{ incomedata }},
-                      backgroundColor: {{ incomedatacolours | safe }},
+                      backgroundColor: {{ colours | safe }},
                     }]
                   };
 
@@ -64,7 +66,9 @@ Dashboard
                       position: 'right'
                     },
                     animation: {
-                      animateRotate: true
+                      animateRotate: true,
+                      duration: 600,
+                      easing: 'linear',
                     }
 
                 };
@@ -90,11 +94,16 @@ Dashboard
                     data: {
                       labels: {{ pathwaynames | safe }},
                       datasets: [{
-                        backgroundColor: {{ incomedatacolours | safe }},
+                        backgroundColor: {{ colours | safe }},
                         data: {{ pathwaynumbers | safe }}
                       }]
-                    }
-                  });
+                    },
+                    options: {
+                        legend:{
+                          position: 'bottom',
+                              }
+                            }
+                          });
 
               </script>
             </div>
@@ -109,12 +118,11 @@ Dashboard
 
                 var longestinpathwayCxt = document.getElementById("longestinpathway").getContext("2d");
                 var longestinpathwayData = {
-                    labels: {{ longestinpathwaynames | safe }},
+                    labels: {{ names | safe }},
                     datasets: [{
                         label: ['Days in pathway'],
                         data: {{ longestinpathwaydaysin | safe }},
-                        backgroundColor: {{ incomedatacolours | safe }},
-                        hoverBackgroundColor: ["#66A2EB", "#FCCE56"]
+                        backgroundColor: {{ colours | safe }},
                     }]
                 };
 
@@ -146,12 +154,11 @@ Dashboard
 
                 var targetperformanceCxt = document.getElementById("targetperformance").getContext("2d");
                 var longestinpathwayData = {
-                    labels: {{ longestinpathwaynames | safe }},
+                    labels: {{ names | safe }},
                     datasets: [{
                         label: ['Performance on target £'],
                         data: {{ targetperformance | safe }},
-                        backgroundColor: {{ incomedatacolours | safe }},
-                        hoverBackgroundColor: ["#66A2EB", "#FCCE56"]
+                        backgroundColor: {{ colours | safe }},
                     }]
                 };
 
@@ -180,15 +187,13 @@ Dashboard
                 <canvas id="topprogression"></canvas>
                 <script>
 
-
                 var topprogressionCxt = document.getElementById("topprogression").getContext("2d");
                 var topprogressionData = {
-                    labels: {{ scorenames | safe }},
+                    labels: {{ names | safe }},
                     datasets: [{
                         label: ['Score'],
                         data: {{ score | safe }},
-                        backgroundColor: {{ incomedatacolours | safe }},
-
+                        backgroundColor: {{ colours | safe }},
                     }]
                 };
 
@@ -198,7 +203,7 @@ Dashboard
                     options: {
                       legend: {display: false},
                         scales: {
-                            xAxes: [{
+                            yAxes: [{
                                 ticks: {
                             		min: 0
                                 }
@@ -219,7 +224,7 @@ Dashboard
                    new Chart.Scatter(document.getElementById("myChart1"), {
                    type: 'scatter',
                    data: {
-                     labels: {{ labels | safe }},
+                     labels: {{ names | safe }},
                      datasets: [{
                        data: {{ scatterdata | safe }},
                        showLine: false,
@@ -230,7 +235,7 @@ Dashboard
                        borderColor: "white",
                        backgroundColor: "rgba(0, 137, 255, 0.4)",
                        opacity: .1,
-                       pointBackgroundColor: {{ incomedatacolours | safe }},
+                       pointBackgroundColor: {{ colours | safe }},
                        pointBorderColor: 'white',
                        pointRadius: 8,
                        pointHoverRadius: 9,
@@ -288,21 +293,52 @@ Dashboard
                                       }],
                             },
                             showLines: true
-
                           }
                    });
-
-
-
                   </script>
-
-
-                </script>
-
             </div>
         </li>
 
+        <li data-color="preappointment">
+
+          <div class="uk-card uk-card-default uk-card-body">
+            <p class="uk-text uk-text-lighter">Steps Remaining Before Appointment<p>
+              <canvas id="stepsremain"></canvas>
+              <script>
+
+
+              var stepsremainCxt = document.getElementById("stepsremain").getContext("2d");
+              var stepsremainData = {
+                  labels: {{ stepsremainnames | safe }},
+                  datasets: [{
+                      label: ['stepsremain'],
+                      data: {{ stepsremain | safe }},
+                      backgroundColor: {{ colours | safe }},
+
+                  }]
+              };
+
+              var stepsremain = new Chart(stepsremainCxt, {
+                  type: 'bar',
+                  data: stepsremainData,
+                  options: {
+                    legend: {display: false},
+                      scales: {
+                          yAxes: [{
+                              ticks: {
+                              min: 0
+                              }
+                          }],
+                      }
+
+                  }
+              });
+              </script>
+          </div>
+      </li>
+
     </ul>
+{% endif %}
 
 </div>
 </div>

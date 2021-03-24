@@ -53,7 +53,7 @@ sess.init_app(app)
 # Configure CS50 Library to use SQLite database
 db = SQL("sqlite:///onboard.db")
 
-    # Upload folder
+# Upload folder
 UPLOAD_FOLDER = 'static/files'
 app.config['UPLOAD_FOLDER'] =  UPLOAD_FOLDER
 
@@ -109,7 +109,7 @@ def register():
         companymail = email.split("@")[1]
 
         # Create table for users
-        #db.execute("CREATE TABLE IF NOT EXISTS users ('id' integer PRIMARY KEY NOT NULL, 'email' text NOT NULL, 'firstname' text NOT NULL,'lastname' text NOT NULL, 'password' text NOT NULL, 'company' text NOT NULL, 'jobrole' text NOT NULL,'companymail' text NOT NULL)")
+        db.execute("CREATE TABLE IF NOT EXISTS users ('id' integer PRIMARY KEY NOT NULL, 'email' text NOT NULL, 'firstname' text NOT NULL,'lastname' text NOT NULL, 'password' text NOT NULL, 'company' text NOT NULL, 'jobrole' text NOT NULL,'companymail' text NOT NULL)")
 
         # Add user to database, if user already exists say eror username already exists
         row = db.execute("SELECT * FROM users WHERE email = ?", email)
@@ -140,6 +140,10 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
+        date = datetime.datetime.now()
+
+        #Store when user last logged in
+        db.execute("UPDATE users SET lastlogin = ?", date)
 
         # Redirect user to home page
         return redirect("/dashboard")
@@ -162,6 +166,7 @@ def logout():
 def people():
 
     if request.method == "GET":
+
         db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
@@ -169,22 +174,19 @@ def people():
         firstname = info[0]['firstname']
         lastname = info[0]['lastname']
         companymail = info[0]['companymail']
-
         fullname = firstname + ' ' + lastname
-
-        rows = db.execute("SELECT * FROM people WHERE pdm = ?", username)
 
         daytoday = int(datetime.datetime.today().strftime ('%d'))
         monthtoday = int(datetime.datetime.today().strftime ('%m'))
         yeartoday = int(datetime.datetime.today().strftime ('%Y'))
+
+        # Iterate over people in database
         i = 0
-        daysin = {}
-
-        #Update length of time they've been enrolled in the pathway
-
+        rows = db.execute("SELECT * FROM people WHERE pdm = ?", username)
         for row in rows:
 
             dateenrolled = rows[i]['pathwayEnrolledDate']
+            # Are they enrolled in anything?
             if dateenrolled != None:
 
                 x = dateenrolled.split("/", 3)
@@ -197,11 +199,30 @@ def people():
                 delta = d1 - d0
                 daysin = delta.days
 
-                if daysin != 0:
+            #Check if the person has been appointed
+            if rows[i]['appointed'] == 1:
+
+                #Calculate days since appointment
+                dateappointed = rows[i]['dateappointed']
+                x = dateappointed.split("/", 3)
+                year = (int(x[2]))
+                month = (int(x[1]))
+                day = (int(x[0]))
+
+                d0 = date(year, month, day)
+                d1 = date(yeartoday, monthtoday, daytoday)
+                delta = d1 - d0
+                dayssinceappointment = delta.days
+
+                #If progress is 0% then skip over the calculation for estimated completion
+                progressnumber = int(rows[i]['pathwayEnrolledProgress'])
+                if progressnumber == 0:
+                    estcompletion = 'Not yet known'
+                    score = 0
+
+                else:
 
                     #Based on rate of progress estimate a completion date
-
-                    progressnumber = int(rows[i]['pathwayEnrolledProgress'])
                     daysleft = int((daysin / progressnumber) * 100)
                     estcompletion = d0 + datetime.timedelta(days=daysleft)
 
@@ -215,28 +236,19 @@ def people():
                     #Set score
                     score = round((progressnumber / daysin), 2)
 
-                else:
-
-                    estcompletion = 'Not yet known'
-                    score = 0
-
             else:
 
-                daysin = 0
-                estcompletion = ' '
+                #Calculate for people that have not yet been appointed
+                dayssinceappointment = 0
                 score = 0
+                estcompletion = 'Not yet known'
 
-            db.execute("UPDATE people SET daysinpathway = ?, estcompletion = ?, score = ? WHERE email = ?", daysin, estcompletion, score, rows[i]['email'])
+            db.execute("UPDATE people SET daysinpathway = ?, estcompletion = ?, score = ?, dayssinceappointment = ? WHERE email = ?", daysin, estcompletion, score, dayssinceappointment, rows[i]['email'])
             i = i+1
-
 
         #Prepare data for charting on page V1
         #Harvest info from DB
-        pathwayprogress = db.execute("SELECT pathwayEnrolledProgress from people WHERE pdm = ?", username)
-        pathwaydays = db.execute("SELECT daysinpathway from people WHERE pdm = ?", username)
-        firstname = db.execute("SELECT firstname from people WHERE pdm = ?", username)
-        lastname = db.execute("SELECT lastname from people WHERE pdm = ?", username)
-        business = db.execute("SELECT businessWrittenYearToDate from people WHERE pdm = ?", username)
+        rows = db.execute("SELECT * from people WHERE pdm = ? AND appointed = 1", username)
 
         #Declare lists to format data
         newlist = []
@@ -247,11 +259,11 @@ def people():
 
         #Fill lists with information
         i = 0
-        while i < len(pathwayprogress):
-            percent.append(pathwayprogress[i]['pathwayEnrolledProgress'])
-            days.append(pathwaydays[i]['daysinpathway'])
-            datalabels.append(firstname[i]['firstname']+' '+lastname[i]['lastname'])
-            if (int(business[i]['businessWrittenYearToDate']) < (int(pathwaydays[i]['daysinpathway']) * 165)):
+        while i < len(rows):
+            percent.append(rows[i]['pathwayEnrolledProgress'])
+            days.append(rows[i]['dayssinceappointment'])
+            datalabels.append(rows[i]['firstname']+' '+rows[i]['lastname'])
+            if (int(rows[i]['businessWrittenYearToDate']) < (int(rows[i]['dayssinceappointment']) * 165)):
                 bubblecolour.append('tomato')
             else:
                 bubblecolour.append('DodgerBlue')
@@ -262,9 +274,15 @@ def people():
             newlist.append({'x': h, 'y': w})
         scatterdata = str(newlist).replace('\'', '')
 
-        return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows, data=scatterdata, bubblecolour = bubblecolour, labels = datalabels)
+        # Create variables to hold info on appointed and pre-appointment people
+
+        appointed = db.execute("SELECT * FROM people WHERE pdm = ? AND appointed = 1", username)
+        preappointment = db.execute("SELECT * FROM people WHERE pdm = ? AND appointed = 0", username)
+
+        return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, appointed = appointed, preappointment = preappointment, data=scatterdata, bubblecolour = bubblecolour, labels = datalabels)
 
     elif request.method == "POST":
+
         db = SQL("sqlite:///onboard.db")
 
         info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
@@ -277,31 +295,32 @@ def people():
 
         if request.form.get('sort') == 'score':
 
-            rows = db.execute("SELECT * FROM people WHERE pdm = ? ORDER BY score DESC", username)
+            appointed = db.execute("SELECT * FROM people WHERE pdm = ? AND appointed = 1 ORDER BY score DESC", username)
+            preappointment = db.execute("SELECT * FROM people WHERE pdm = ? AND appointed = 0", username)
 
         if request.form.get('sort') == 'days':
 
-            rows = db.execute("SELECT * FROM people WHERE pdm = ? ORDER BY daysinpathway DESC", username)
+            appointed = db.execute("SELECT * FROM people WHERE pdm = ? AND appointed = 1 ORDER BY dayssinceappointment DESC", username)
+            preappointment = db.execute("SELECT * FROM people WHERE pdm = ? AND appointed = 0 ORDER BY daysinpathway DESC", username)
 
         if request.form.get('sort') == 'progress':
 
-            rows = db.execute("SELECT * FROM people WHERE pdm = ? ORDER BY pathwayEnrolledProgress DESC", username)
+            appointed = db.execute("SELECT * FROM people WHERE pdm = ? AND appointed = 1 ORDER BY pathwayEnrolledProgress DESC", username)
+            preappointment = db.execute("SELECT * FROM people WHERE pdm = ? AND appointed = 0 ORDER BY pathwayEnrolledProgress DESC", username)
 
         if request.form.get('sort') == 'name':
 
-            rows = db.execute("SELECT * FROM people WHERE pdm = ? ORDER BY lastname", username)
+            appointed = db.execute("SELECT * FROM people WHERE pdm = ? AND appointed = 1 ORDER BY lastname", username)
+            preappointment = db.execute("SELECT * FROM people WHERE pdm = ? AND appointed = 0 ORDER BY lastname", username)
 
         if request.form.get('sort') == 'pathway':
 
-            rows = db.execute("SELECT * FROM people WHERE pdm = ? ORDER BY pathwayEnrolled", username)
+            appointed = db.execute("SELECT * FROM people WHERE pdm = ? AND appointed = 1 ORDER BY pathwayEnrolled", username)
+            preappointment = db.execute("SELECT * FROM people WHERE pdm = ? AND appointed = 0  ORDER BY pathwayEnrolled", username)
 
         #Prepare data for charting on page V1
         #Harvest info from DB
-        pathwayprogress = db.execute("SELECT pathwayEnrolledProgress from people WHERE pdm = ?", username)
-        pathwaydays = db.execute("SELECT daysinpathway from people WHERE pdm = ?", username)
-        firstname = db.execute("SELECT firstname from people WHERE pdm = ?", username)
-        lastname = db.execute("SELECT lastname from people WHERE pdm = ?", username)
-        business = db.execute("SELECT businessWrittenYearToDate from people WHERE pdm = ?", username)
+        rows = db.execute("SELECT * from people WHERE pdm = ? AND appointed = 1", username)
 
         #Declare lists to format data
         newlist = []
@@ -312,11 +331,11 @@ def people():
 
         #Fill lists with information
         i = 0
-        while i < len(pathwayprogress):
-            percent.append(pathwayprogress[i]['pathwayEnrolledProgress'])
-            days.append(pathwaydays[i]['daysinpathway'])
-            datalabels.append(firstname[i]['firstname']+' '+lastname[i]['lastname'])
-            if (int(business[i]['businessWrittenYearToDate']) < (int(pathwaydays[i]['daysinpathway']) * 165)):
+        while i < len(rows):
+            percent.append(rows[i]['pathwayEnrolledProgress'])
+            days.append(rows[i]['daysinpathway'])
+            datalabels.append(rows[i]['firstname']+' '+rows[i]['lastname'])
+            if (int(rows[i]['businessWrittenYearToDate']) < (int(rows[i]['dayssinceappointment']) * 165)):
                 bubblecolour.append('tomato')
             else:
                 bubblecolour.append('DodgerBlue')
@@ -328,7 +347,7 @@ def people():
             newlist.append({'x': h, 'y': w})
         scatterdata = str(newlist).replace('\'', '')
 
-        return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, rows = rows, data=scatterdata, bubblecolour = bubblecolour, labels = datalabels)
+        return render_template("people.html", firstname = firstname, FullName = fullname, companymail=companymail, appointed = appointed, preappointment = preappointment, data=scatterdata, bubblecolour = bubblecolour, labels = datalabels)
 
 
 @app.route("/newperson", methods=["GET", "POST"])
@@ -357,10 +376,11 @@ def newperson():
         personexemployeddealexpiry = request.form.get("exemployeddealexpiry")
         personbusinessWrittenPreviousMonth = request.form.get("businessWrittenPreviousMonth")
         personbusinessWrittenYearToDate = request.form.get("businessWrittenYearToDate")
+        practice = request.form.get('practice')
+        appointed = 0
+        #db.execute("""CREATE TABLE IF NOT EXISTS people ('id' integer PRIMARY KEY NOT NULL, 'firstname' text NOT NULL, 'lastname' text NOT NULL, 'mobile' text NOT NULL, 'email' text NOT NULL, 'pdm' text NOT NULL, 'bam' text, 'pathwayEnrolled' text, 'pathwayEnrolledDate' text, 'pathwayEnrolledPosition' text, 'pathwayEnrolledProgress' integer,  'pathwayEnrolledPositionDate' text, 'history' text, 'exEmployedDeal' text, 'exEmployedDealExpiry' text, 'businessWrittenPreviousMonth' integer, 'businessWrittenYearToDate'  integer, 'daysinpathway' integer, 'estcompletion' text, 'score' int, 'minincome' int, 'dateappointed' text, 'practice' text)""")
 
-        #db.execute("""CREATE TABLE IF NOT EXISTS people ('id' integer PRIMARY KEY NOT NULL, 'firstname' text NOT NULL, 'lastname' text NOT NULL, 'mobile' text NOT NULL, 'email' text NOT NULL, 'pdm' text NOT NULL, 'bam' text, 'pathwayEnrolled' text, 'pathwayEnrolledDate' text, 'pathwayEnrolledPosition' text, 'pathwayEnrolledProgress' integer,  'pathwayEnrolledPositionDate' text, 'history' text, 'exEmployedDeal' text, 'exEmployedDealExpiry' text, 'businessWrittenPreviousMonth' integer, 'businessWrittenYearToDate'  integer, 'daysinpathway' integer, 'estcompletion' text, 'score' int, 'minincome' int)""")
-
-        db.execute("INSERT INTO people (firstname, lastname, mobile, email, pdm, bam, history, exEmployedDeal, exEmployedDealExpiry, businessWrittenPreviousMonth, businessWrittenYearToDate, minincome) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", personfirstname, personlastname, personmobile, personemail, username, personbam, personhistory, personexemployeddeal, personexemployeddealexpiry, personbusinessWrittenPreviousMonth, personbusinessWrittenYearToDate, minincome)
+        db.execute("INSERT INTO people (firstname, lastname, mobile, email, pdm, bam, history, exEmployedDeal, exEmployedDealExpiry, businessWrittenPreviousMonth, businessWrittenYearToDate, minincome, practice, appointed, pathwayEnrolled) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", personfirstname, personlastname, personmobile, personemail, username, personbam, personhistory, personexemployeddeal, personexemployeddealexpiry, personbusinessWrittenPreviousMonth, personbusinessWrittenYearToDate, minincome, practice, appointed, 'None')
 
         rows = db.execute("SELECT * FROM people WHERE pdm = ? AND email = ?", username, personemail)
 
@@ -400,17 +420,23 @@ def viewperson():
 
         rows = db.execute("SELECT DISTINCT * FROM people WHERE email = ?", personemail)
 
-        targetnumber = int(rows[0]['daysinpathway']) * 165
-        resultnumber = int(rows[0]['businessWrittenYearToDate']) - targetnumber
+        if rows[0]['appointed'] == 1:
 
-        if resultnumber < 0:
-            resultstring = '£'+str(resultnumber) + ' below target'
-            style = 'red'
+            targetnumber = int(rows[0]['dayssinceappointment']) * 165
+            resultnumber = int(rows[0]['businessWrittenYearToDate']) - targetnumber
+
+            if resultnumber < 0:
+                resultstring = '£'+str(resultnumber) + ' below target'
+                style = 'red'
+            else:
+                resultstring = '+£'+str(resultnumber) + ' above target'
+                style = 'green'
+
+            return render_template("viewperson.html", FullName = fullname, rows = rows, targetnumber = targetnumber, result = resultstring, style = style)
+
         else:
-            resultstring = '+£'+str(resultnumber) + ' above target'
-            style = 'green'
 
-        return render_template("viewperson.html", FullName = fullname, rows = rows, targetnumber = targetnumber, result = resultstring, style = style)
+            return render_template("viewperson.html", FullName = fullname, rows = rows)
 
 @app.route("/dashboard", methods=["GET", "POST"])
 @login_required
@@ -428,138 +454,145 @@ def dashboard():
         fullname = firstname + ' ' + lastname
 
         rows = db.execute("SELECT * FROM people WHERE pdm = ?", username)
+        print(rows)
 
-        daytoday = int(datetime.datetime.today().strftime ('%d'))
-        monthtoday = int(datetime.datetime.today().strftime ('%m'))
-        yeartoday = int(datetime.datetime.today().strftime ('%Y'))
-        i = 0
-        daysin = {}
+        if rows != None:
 
-        #Update length of time they've been enrolled in the pathway
+            daytoday = int(datetime.datetime.today().strftime ('%d'))
+            monthtoday = int(datetime.datetime.today().strftime ('%m'))
+            yeartoday = int(datetime.datetime.today().strftime ('%Y'))
+            i = 0
+            daysin = {}
 
-        for row in rows:
+            #Update length of time they've been enrolled in the pathway
 
-            dateenrolled = rows[i]['pathwayEnrolledDate']
-            if dateenrolled != None:
+            for row in rows:
 
-                x = dateenrolled.split("/", 3)
-                yearenrolled = (int(x[2]))
-                monthenroleld = (int(x[1]))
-                dayenrolled = (int(x[0]))
+                dateenrolled = rows[i]['pathwayEnrolledDate']
+                if dateenrolled != None:
 
-                d0 = date(yearenrolled, monthenroleld, dayenrolled)
-                d1 = date(yeartoday, monthtoday, daytoday)
-                delta = d1 - d0
-                daysin = delta.days
+                    x = dateenrolled.split("/", 3)
+                    yearenrolled = (int(x[2]))
+                    monthenroleld = (int(x[1]))
+                    dayenrolled = (int(x[0]))
 
-                if daysin != 0:
+                    d0 = date(yearenrolled, monthenroleld, dayenrolled)
+                    d1 = date(yeartoday, monthtoday, daytoday)
+                    delta = d1 - d0
+                    daysin = delta.days
 
-                    #Based on rate of progress estimate a completion date
+                    if daysin != 0:
 
-                    progressnumber = int(rows[i]['pathwayEnrolledProgress'])
-                    score = round((progressnumber / daysin), 2)
+                        #Based on rate of progress estimate a completion date
 
-            db.execute("UPDATE people SET daysinpathway = ?, score = ? WHERE email = ?", daysin, score, rows[i]['email'])
-            i = i+1
+                        progressnumber = int(rows[i]['pathwayEnrolledProgress'])
+                        score = round((progressnumber / daysin), 2)
 
-        #Prepare data for Progress / Time chart
-        #Harvest info from DB
-        pathwayprogress = db.execute("SELECT pathwayEnrolledProgress from people WHERE pdm = ?", username)
-        pathwaydays = db.execute("SELECT daysinpathway from people WHERE pdm = ?", username)
-        firstname = db.execute("SELECT firstname from people WHERE pdm = ?", username)
-        lastname = db.execute("SELECT lastname from people WHERE pdm = ?", username)
+                    # They've not in a pathway more than a day so score is 0
+                    else:
+                        score = 0
 
-        #Declare lists to format data
-        newlist = []
-        percent = []
-        datalabels = []
-        days = []
+                # They're not in a pathway so score is 0
+                else:
+                    score = 0
+                    daysin = 'None'
 
-        #Fill lists with information
-        i = 0
-        while i < len(pathwayprogress):
-            percent.append(pathwayprogress[i]['pathwayEnrolledProgress'])
-            days.append(pathwaydays[i]['daysinpathway'])
-            datalabels.append(firstname[i]['firstname']+' '+lastname[i]['lastname'])
-            i = i+1
+                db.execute("UPDATE people SET daysinpathway = ?, score = ? WHERE email = ?", daysin, score, rows[i]['email'])
+                i = i+1
 
-        #Combine lists into scatterdata variable
-        for h, w in zip(percent, days):
-            newlist.append({'x': h, 'y': w})
-        scatterdata = str(newlist).replace('\'', '')
+            #Prepare data for Progress / Time chart
+            #Harvest info from DB
+            rows = db.execute("SELECT * from people WHERE pdm = ? AND appointed = 1", username)
 
-        #Data preperation for Chart1 Dashboard - Total Business Written
-        incomedata = []
-        incomelabels = []
-        incomedatacolours = []
+            #Declare lists to format data
+            newlist = []
+            percent = []
+            datalabels = []
+            days = []
 
-        firstname = db.execute("SELECT firstname from people WHERE pdm = ?", username)
-        lastname = db.execute("SELECT lastname from people WHERE pdm = ?", username)
-        businessWrittenYearToDate = db.execute("SELECT businessWrittenYearToDate from people WHERE pdm = ?", username)
+            #Fill lists with information
+            i = 0
+            while i < len(rows):
+                percent.append(rows[i]['pathwayEnrolledProgress'])
+                days.append(rows[i]['daysinpathway'])
+                datalabels.append(rows[i]['firstname']+' '+rows[i]['lastname'])
+                i = i+1
 
-        i = 0
-        totalbusiness = 0
-        while i < len(businessWrittenYearToDate):
+            #Combine lists into scatterdata variable
+            for h, w in zip(percent, days):
+                newlist.append({'x': h, 'y': w})
+            scatterdata = str(newlist).replace('\'', '')
 
-            incomedata.append(businessWrittenYearToDate[i]['businessWrittenYearToDate'])
-            totalbusiness = totalbusiness + businessWrittenYearToDate[i]['businessWrittenYearToDate']
-            name = firstname[i]['firstname'] + ' '+ lastname[i]['lastname']
-            incomelabels.append(name)
-            colour = f"#{random.randrange(0x1000000):06x}"
-            incomedatacolours.append(colour)
-            i = i+1
+            #Data preperation for charts of people appointed = 1
 
-        #Data preperation for Chart 2 Dashboard - Distribution of people
-        pathwaynames = []
-        pathwaynumbers = []
-        pathwaynumber = db.execute("SELECT enrolled from pathways where email = ?", username)
-        pathwayname = db.execute("SELECT pathwayName from pathways where email = ?", username)
+            rows = db.execute("SELECT * FROM people where pdm = ? AND appointed = 1", username)
 
-        i = 0
-        while i < len(pathwaynumber):
+            longestinpathwaydaysin = []
+            targetperformance = []
+            score = []
+            incomedata = []
+            totalbusiness = 0
+            names = []
 
-            pathwaynames.append(pathwayname[i]['pathwayName'])
-            pathwaynumbers.append(pathwaynumber[i]['enrolled'])
-            i = i+1
+            i = 0
+            while i < len(rows):
 
-        #Data preperation for Table 3 Dashboard - Longest in pathway
-        rows = db.execute("SELECT * FROM people where pdm = ?", username)
+                #Data preperation for Table 3 Dashboard - Longest in pathway
+                longestinpathwaydaysin.append(rows[i]['daysinpathway'])
+                #Data preperation for Table 4 Dashboard - Earnings performance against target
+                #If it's their first day of appointment, skip the calculation
+                print(rows[i])
+                if rows[i]['dayssinceappointment'] == None:
+                    result = 0
+                else:
+                    target = (rows[i]['dayssinceappointment'] * 165 )
+                    result = (rows[i]['businessWrittenYearToDate'] - target)
+                targetperformance.append(result)
+                #Data preperation for Table 5 Dashboard - Top People by score
+                score.append(rows[i]['score'])
+                #Data preperation for Chart1 Dashboard - Total Business Written
+                incomedata.append(rows[i]['businessWrittenYearToDate'])
+                totalbusiness = totalbusiness + rows[i]['businessWrittenYearToDate']
+                names.append(rows[i]['firstname'] + ' ' + rows[i]['lastname'])
 
-        longestinpathwaydaysin = []
-        longestinpathwaynames = []
+                i = i+1
 
-        i = 0
-        while i < len(rows):
+            #Data preperation for chart - Distribution of people
 
-            longestinpathwaydaysin.append(rows[i]['daysinpathway'])
-            longestinpathwaynames.append(rows[i]['firstname'] +" "+ rows[i]['lastname'])
-            i = i+1
+            pathwaynames = []
+            pathwaynumbers = []
+            rows = db.execute("SELECT * from pathways where email = ?", username)
 
-        #Data preperation for Table 4 Dashboard - Earnings performance against target
+            i = 0
+            while i < len(rows):
 
-        targetperformance = []
-        i = 0
-        while i < len(rows):
+                pathwaynames.append(rows[i]['pathwayName'])
+                pathwaynumbers.append(rows[i]['enrolled'])
+                i = i+1
 
-            target = (rows[i]['daysinpathway'] * 165 )
-            result = (rows[i]['businessWrittenYearToDate'] - target)
-            targetperformance.append(result)
-            i = i+1
+            #Data preperation for pre-appoint charts
 
-        #Data preperation for Table 5 Dashboard - Top 5 People
+            stepsremain = []
+            stepsremainnames = []
+            rows = db.execute("SELECT * FROM people where pdm = ? AND appointed = 0", username)
 
-        score = []
-        scorenames = []
-        rows = db.execute("SELECT * FROM people where pdm = ?", username)
+            i = 0
+            while i < len(rows):
+                if rows[i]['pathwayEnrolledProgress'] != None:
+                    #Steps remaining until appointemnt
+                    stepsremainnames.append(rows[i]['firstname'] + ' ' + rows[i]['lastname'])
+                    stepsremain.append(rows[i]['pathwayEnrolledProgress'])
 
-        i = 0
-        while i < len(rows):
+                i = i+1
 
-            scorenames.append(rows[i]['firstname'] + ' ' + rows[i]['lastname'])
-            score.append(rows[i]['score'])
-            i = i+1
+            # Set colours for charts
+            colours = ["#1D8269", "#F2FF26","#4376A8","#85FFF3","#2594F5", "#7BB7F5", "#3B5875","#75301A", "#145A75", "#FFFA61", "#AC32B3", "#36A89D","#85FFF3","#1A7559", "#4376A8", "#7BB7F5", "#3B5875", "#1D8269", "#75301A", "#145A75", "#FFFA61", "#AC32B3"]
 
-        return render_template("dashboard.html", firstname = firstname, FullName = fullname, pathwayNumber = pathways, people = people, incomedata = incomedata, incomelabels = incomelabels, incomedatacolours = incomedatacolours, totalbusiness = totalbusiness, pathwaynames = pathwaynames, pathwaynumbers = pathwaynumbers, rows = rows, longestinpathwaydaysin = longestinpathwaydaysin, longestinpathwaynames = longestinpathwaynames, targetperformance = targetperformance, score = score, scorenames = scorenames, scatterdata=scatterdata, labels = datalabels)
+            return render_template("dashboard.html", FullName = fullname, pathwayNumber = pathways, incomedata = incomedata, totalbusiness = totalbusiness, pathwaynames = pathwaynames, pathwaynumbers = pathwaynumbers, longestinpathwaydaysin = longestinpathwaydaysin, targetperformance = targetperformance, score = score, scatterdata=scatterdata, labels = datalabels, stepsremainnames = stepsremainnames, stepsremain = stepsremain, colours=colours, names = names)
+
+        else:
+
+            return render_template("dashboard.html", FullName = fullname)
 
 @app.route("/pathways", methods=["GET", "POST"])
 @login_required
@@ -620,9 +653,9 @@ def newpathway():
         else:
             share = 'False'
 
-        #db.execute("CREATE TABLE IF NOT EXISTS pathways ('id' integer PRIMARY KEY NOT NULL, 'pathwayName' text NOT NULL, 'pathwayDescription' text NOT NULL, 'share' text NOT NULL, 'email' text NOT NULL, 'companymail' text NOT NULL, 'enrolled' integer)")
+        #db.execute("CREATE TABLE IF NOT EXISTS pathways ('id' integer PRIMARY KEY NOT NULL, 'pathwayName' text NOT NULL, 'pathwayDescription' text NOT NULL, 'share' text NOT NULL, 'email' text NOT NULL, 'companymail' text NOT NULL, 'enrolled' integer, 'appointmentstage' text)")
 
-        # Add user to database, if user already exists say eror username already exists
+        # Add pathway to database, if user already exists say eror pathway already exists
         row = db.execute("SELECT * FROM pathways WHERE pathwayName = ? AND email = ?", pathwayName, username)
         if row:
             return render_template('apology.html', message="Pathway Already Exists", bodymessage = "Pathway Already Exists")
@@ -645,9 +678,7 @@ def addsteps():
         lastname = info[0]['lastname']
         company = info[0]['company']
         email = info[0]['email']
-
         fullname = firstname + ' ' + lastname
-        # Write greeting for dashboard header
 
         pathway = db.execute("SELECT * from pathways WHERE email =?", email)
 
@@ -674,7 +705,7 @@ def finishpathway():
 
         pathwayName = request.form.get("pathwayName")
 
-        database = db.execute("CREATE TABLE IF NOT EXISTS pathwaystages ('id' integer PRIMARY KEY NOT NULL, 'pathwayName' text NOT NULL, 'email' text NOT NULL, 'stagenumber' integer NOT NULL, 'stagecontent' text NOT NULL, 'stageowner' text, 'stagenotes' text)")
+        #database = db.execute("CREATE TABLE IF NOT EXISTS pathwaystages ('id' integer PRIMARY KEY NOT NULL, 'pathwayName' text NOT NULL, 'email' text NOT NULL, 'stagenumber' integer NOT NULL, 'stagecontent' text NOT NULL, 'stageowner' text, 'stagenotes' text)")
 
         req = request.form
         stagenumber = 1
@@ -694,6 +725,11 @@ def finishpathway():
             stageowner = req[stageown]
             db.execute("INSERT INTO pathwaystages (pathwayName, email, stagenumber, stagecontent, stageowner, stagenotes) VALUES (?, ?, ?, ?, ?, ?)", pathwayName, email, stagenumber, stagecontent, stageowner, stagenotes)
             stagenumber = (stagenumber + 1)
+            #Find the point that a person becomes 'appointed'
+            if req[stagenumberstring] == 'Appointed':
+                #Record at white point a person becomes 'appointed'
+                db.execute('UPDATE pathways SET appointmentstage = ? WHERE pathwayName = ?', stagenumber, pathwayName)
+
             i = (i+1)
 
         rows = db.execute("SELECT DISTINCT * from pathwaystages WHERE pathwayName = ? AND email is ?", pathwayName, email)
@@ -746,9 +782,10 @@ def enroll():
         companymail = info[0]['companymail']
         fullname = firstname+' '+lastname
 
-        people = db.execute("SELECT * FROM people WHERE pdm = ?", username)
+        people = db.execute("SELECT * FROM people WHERE pdm = ? AND pathwayEnrolled = ?", username, 'None')
         pathways = db.execute("SELECT * FROM pathways WHERE email = ? ORDER BY pathwayName", username)
 
+        print(people)
         return render_template("enroll.html", people = people, pathways = pathways, FullName = fullname)
 
     else:
@@ -857,9 +894,18 @@ def stagecomplete():
         pathway = request.args.get('pathwayname')
         pathwaystage = request.args.get('pathwaystage')
 
+        #Which stage triggers appointment status in the pathway
+        appointmentstage = db.execute("SELECT appointmentstage from pathways WHERE pathwayName = ? AND email = ?", pathway, username)
+
+        # Create the variable for todays date
         datetoday = (datetime.datetime.today().strftime ('%d'))+" / "+(datetime.datetime.today().strftime ('%m'))+" / "+(datetime.datetime.today().strftime ('%Y'))
 
+        #Check if stage is being marked complete or rolled back. ID in href on button is tested here.
         if request.args.get('id') == 'complete':
+
+            #Check to see if that task was the stage that meant they were 'appointed'
+            if appointmentstage[0]['appointmentstage'] == pathwaystage:
+                db.execute("UPDATE people SET dateappointed = ?, appointed = 1 WHERE email = ? AND pdm = ?", datetoday, personemail, username)
 
             #Update completed stages in database
             db.execute("UPDATE pathwayprogress SET datecompleted = ?, completed = 1 WHERE email = ? AND stagenumber = ? AND pathwayName = ?", datetoday, personemail, pathwaystage, pathway)
@@ -869,14 +915,30 @@ def stagecomplete():
             #Update completed stages in database
             db.execute("UPDATE pathwayprogress SET datecompleted = ?, completed = 0 WHERE email = ? AND stagenumber = ? AND pathwayName = ?", 'Not complete', personemail, pathwaystage, pathway)
 
-        #calculation of percentage complete
-        stagenumber = db.execute("SELECT stagenumber from pathwaystages WHERE pathwayName = ? ORDER BY stagenumber DESC", pathway)
-        numberofstages = int(stagenumber[0]['stagenumber'])
-        completed = db.execute("SELECT * FROM pathwayprogress WHERE email = ? AND pathwayName = ? AND completed = 1", personemail, pathway)
-        pathwaypercent = int(100 * (len(completed) / numberofstages) )
+        rows = db.execute("SELECT * FROM people WHERE pdm = ? AND email = ?", username, personemail)
 
+        if rows[0]['appointed'] == 1:
 
-        db.execute("UPDATE people SET pathwayEnrolledPosition = ?, pathwayEnrolledProgress = ?,  pathwayEnrolledPositionDate = ?, pathwayEnrolledPosition = ? WHERE email = ?", pathwaystage, pathwaypercent, datetoday, pathwaystage, personemail)
+            #Calculation of percentage complete
+            #Percentage metrics are not counted until someone has been appointed, however they still are in the same pathway.
+            #Therefore any calculation of percentage complete must include a deduction of the stages required to get to 'appointment'
+            stagenumber = db.execute("SELECT stagenumber from pathwaystages WHERE pathwayName = ? ORDER BY stagenumber DESC", pathway)
+            appointment = db.execute("SELECT * from pathways WHERE pathwayName = ?", pathway)
+            appointmentstage = int(appointment[0]['appointmentstage'])
+            numberofstages = int(stagenumber[0]['stagenumber'])
+            completed = db.execute("SELECT * FROM pathwayprogress WHERE email = ? AND pathwayName = ? AND completed = 1", personemail, pathway)
+            pathwaypercent = int(100 * (((len(completed))-appointmentstage) / (numberofstages-appointmentstage)))
+
+            db.execute("UPDATE people SET pathwayEnrolledPosition = ?, pathwayEnrolledProgress = ?,  pathwayEnrolledPositionDate = ?, pathwayEnrolledPosition = ? WHERE email = ?", pathwaystage, pathwaypercent, datetoday, pathwaystage, personemail)
+
+        else:
+
+            #Calculation of stages remaining before appointment
+            appointment = db.execute("SELECT * from pathways WHERE pathwayName = ?", pathway)
+            appointmentstage = int(appointment[0]['appointmentstage'])
+            progress = int(appointment[0]['appointmentstage']) - int(pathwaystage)
+            db.execute("UPDATE people SET pathwayEnrolledPosition = ?, pathwayEnrolledProgress = ?,  pathwayEnrolledPositionDate = ?, pathwayEnrolledPosition = ? WHERE email = ?", pathwaystage, progress, datetoday, pathwaystage, personemail)
+
 
         rows = db.execute("SELECT * from people WHERE pathwayEnrolled = ? AND email = ?", pathway, personemail)
 
@@ -947,6 +1009,9 @@ def upload():
                 stagecontent = row['content']
                 stagenotes = row['notes']
                 stageowner = row['owner']
+                if row['content'] == 'Appointed':
+                    #Record at white point a person becomes 'appointed'
+                    db.execute('UPDATE pathways SET appointmentstage = ? WHERE pathwayName = ?', stagenumber, pathwayName)
                 #Upload pathwaystage to db
                 db.execute("INSERT INTO pathwaystages (pathwayName, email, stagenumber, stagecontent, stageowner, stagenotes) VALUES (?, ?, ?, ?, ?, ?)", pathwayName, email, stagenumber, stagecontent, stageowner, stagenotes)
 
@@ -1048,7 +1113,7 @@ def delete():
             rows = db.execute("SELECT * from people WHERE pathwayEnrolled = ? AND email = ?", pathway, personemail)
 
             db.execute("DELETE FROM pathwayprogress WHERE email = ?", personemail)
-            db.execute("UPDATE people SET pathwayEnrolledDate = NULL, pathwayEnrolled = NULL, pathwayEnrolledPosition = NULL, pathwayEnrolledProgress = NULL,  pathwayEnrolledPositionDate = NULL, score = 0, daysinpathway = Null, estcompletion = Null WHERE email = ?", personemail)
+            db.execute("UPDATE people SET pathwayEnrolledDate = NULL, pathwayEnrolled = ?, pathwayEnrolledPosition = NULL, pathwayEnrolledProgress = NULL,  pathwayEnrolledPositionDate = NULL, score = 0, daysinpathway = Null, estcompletion = Null, dateappointed = NULL, dayssinceappointment = Null, appointed = 0 WHERE email = ?", 'None',personemail)
             db.execute("UPDATE pathways SET enrolled = enrolled - 1 WHERE pathwayNAME = ? AND email = ?", pathway, username)
 
             deleted = ('Removed from '+pathway)
@@ -1141,7 +1206,7 @@ def updatefields():
 
         rows = db.execute("SELECT DISTINCT * FROM people WHERE email = ?", personemail)
 
-        targetnumber = int(rows[0]['daysinpathway']) * 165
+        targetnumber = int(rows[0]['dayssinceappointment']) * 165
         resultnumber = int(rows[0]['businessWrittenYearToDate']) - targetnumber
 
         if resultnumber < 0:
@@ -1192,11 +1257,16 @@ def updatedates():
         id = request.args.get('dates')
         personemail = request.args.get('name')
         pathway = request.args.get('pathwayname')
+        rows = db.execute("SELECT * from people WHERE email = ?", personemail)
 
         req = request.form
-        numberofentries = (len(req))
+        numberofentries = (len(req) - 1 )
         newenrolleddate = req['enrolleddate']
-        db.execute("UPDATE people SET pathwayEnrolledDate = ? WHERE email = ? AND pdm = ?", newenrolleddate, personemail, username)
+        if rows[0]['appointed'] == 1:
+            newappointmentdate = req['appointed']
+            db.execute("UPDATE people SET pathwayEnrolledDate = ?, dateappointed = ? WHERE email = ? AND pdm = ?", newenrolleddate, newappointmentdate, personemail, username)
+        else:
+            db.execute("UPDATE people SET pathwayEnrolledDate = ? WHERE email = ? AND pdm = ?", newenrolleddate, personemail, username)
         i = 1
 
         while i < numberofentries:
@@ -1205,6 +1275,7 @@ def updatedates():
             datechange = req[number]
             stagenumber = i
             db.execute("UPDATE pathwayprogress SET datecompleted = ? WHERE stagenumber = ? AND email = ? AND pathwayName = ?", datechange, stagenumber, personemail, pathway)
+            print(number)
             i = (i+1)
 
         rows = db.execute("SELECT * from people WHERE pathwayEnrolled = ? AND email = ?", pathway, personemail)
@@ -1233,6 +1304,28 @@ def backup():
         link = "static/files/onboard.db"
 
     return render_template("backup.html", link = link)
+
+
+@app.route("/view", methods=["GET"])
+@login_required
+def view():
+
+    db = SQL("sqlite:///onboard.db")
+
+    #Start of the management level views for the app
+
+    info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
+    username = info[0]['email']
+    firstname = info[0]['firstname']
+    lastname = info[0]['lastname']
+    companymail = info[0]['companymail']
+    fullname = firstname+' '+lastname
+
+    rows = db.execute("SELECT * from people WHERE pdm = (SELECT email FROM users WHERE companymail = ?) GROUP BY pdm", companymail)
+
+
+    return render_template('view.html', rows = rows)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

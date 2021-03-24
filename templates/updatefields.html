@@ -11,11 +11,12 @@ People
   <div class="uk-text-center uk-card-body">
 
     <div class="uk-text-center uk-card-body">
-      <h4>{{ rows[0]["firstname"] }} {{ rows[0]['lastname'] }}</h4>
+      <h2 class="uk-text uk-text-lighter">{{ rows[0]["firstname"] }} {{ rows[0]['lastname'] }}</h2>
       <p>Email: {{ rows[0]['email'] }}</p>
     </div>
+
     <div class="center">
-      <table class="uk-table uk-table-small">
+      <table class="uk-table uk-table-small uk-text uk-text-lighter">
         <form method="POST">
           <thead>
             <th class="uk-table uk-table-small"></th>

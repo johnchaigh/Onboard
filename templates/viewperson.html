@@ -11,37 +11,56 @@
   <div class="uk-card-body" id="width">
 
     <div class="uk-text-center uk-card-body">
-      <h3>{{ rows[0]["firstname"] }} {{ rows[0]['lastname'] }}</h3>
-      <span class="uk-badge uk-badge-success"><span uk-icon="icon: bolt; ratio: 0.8">{{rows[0]['score']}}</span></span>
+      <h2 class="uk-text uk-text-lighter">{{ rows[0]["firstname"] }} {{ rows[0]['lastname'] }}</h2>
+      {% if rows[0]['appointed'] == 1 %}
+      <span class="uk-badge uk-badge-success">{{rows[0]['score']}}</span>
+        <p class="uk-text uk-text-lighter">Appointment date: {{rows[0]['dateappointed']}}</p>
+      {% endif %}
     </div>
 
     <ul uk-accordion="multiple: true">
       <li class="uk-open">
-          <a class="uk-accordion-title" href="#">Business Written</a>
+          <a class="uk-accordion-title uk-text uk-text-lighter" href="#">Business Written</a>
           <div class="uk-accordion-content">
             <table class="uk-table uk-table-small uk-text uk-text-lighter">
+              {% if rows[0]['appointed'] == 1 %}
               <tr><td >Business Target For Appointment Duration : £{{targetnumber}}</td></tr>
               <tr><td {{style}}>Business Written Since Appointment : £{{ rows[0]['businessWrittenYearToDate'] }}   <td id="{{style}}">{{result}}</td></tr>
-
-              <tr><td>Ex-employed deal: £{{ rows[0]['exEmployedDeal'] }}, expires in {{ rows[0]['exEmployedDealExpiry'] }} </td></tr>
               <tr><td>Business Written Previous Month: £{{ rows[0]['businessWrittenPreviousMonth'] }} </td></tr>
+              {% endif %}
+              <tr><td>Ex-employed deal: £{{ rows[0]['exEmployedDeal'] }}, expires in {{ rows[0]['exEmployedDealExpiry'] }} </td></tr>
               <tr><td>Minimum Income Threshhold : £{{ rows[0]['minincome'] }} </td></tr>
               </table>
           </div>
       </li>
+      {% if rows[0]['appointed'] == 1 %}
+      <li class="uk-open">
+          <a class="uk-accordion-title uk-text uk-text-lighter" href="#">Progress</a>
+          <div class="uk-accordion-content">
+            <table class="uk-table uk-table-small uk-text uk-text-lighter">
+              <tr><td>Appointment date: {{rows[0]['dateappointed']}}</td></tr>
+              <tr><td>Enrolled in: <a href="/progress?name={{rows[0]["email"]}}&pathway={{rows[0]['pathwayEnrolled']}}">{{rows[0]['pathwayEnrolled']}}</a></td></tr>
+              <tr><td>Progress: {{rows[0]['pathwayEnrolledProgress']}}%</td></tr>
+              <tr><td>Expected To Graduate On: {{rows[0]['estcompletion']}}</td></tr>
+              <tr><td>Enrolled Since: {{rows[0]['pathwayEnrolledDate']}} ({{rows[0]['daysinpathway']}} days)</td><tr>
+              </table>
+          </div>
+      </li>
+      {% endif %}
+      {% if rows[0]['appointed'] == 0 %}
         <li class="uk-open">
-            <a class="uk-accordion-title" href="#">Pathway</a>
+            <a class="uk-accordion-title uk-text uk-text-lighter" href="#">Pre-Appointment Progress</a>
             <div class="uk-accordion-content">
               <table class="uk-table uk-table-small uk-text uk-text-lighter">
                 <tr><td>Enrolled in: <a href="/progress?name={{rows[0]["email"]}}&pathway={{rows[0]['pathwayEnrolled']}}">{{rows[0]['pathwayEnrolled']}}</a></td></tr>
-                <tr><td>Progress: {{rows[0]['pathwayEnrolledProgress']}}%</td></tr>
+                <tr><td>Stages left until appointment: {{rows[0]['pathwayEnrolledProgress']}}</td></tr>
                 <tr><td>Enrolled Since: {{rows[0]['pathwayEnrolledDate']}} ({{rows[0]['daysinpathway']}} days)</td><tr>
-                <tr><td>Expected To Graduate On: {{rows[0]['estcompletion']}}</td></tr>
                 </table>
             </div>
         </li>
+        {% endif %}
         <li>
-            <a class="uk-accordion-title" href="#">Contact Information</a>
+            <a class="uk-accordion-title uk-text uk-text-lighter" href="#">Contact Information</a>
             <div class="uk-accordion-content">
               <table class="uk-table uk-table-small uk-text uk-text-lighter">
               <tr><td>Mobile Phone: {{ rows[0]['mobile'] }} </td></tr>

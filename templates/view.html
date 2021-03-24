@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block title %}
+View
+{% endblock %}
+
+{% block main %}
+
+<div class="uk-card uk-card-default uk-card-small">
+
+  <div class="uk-text-center uk-card-body">
+
+    <h2 class="uk-text-center uk-text uk-text-lighter"> </h2>
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Pathway Enrolled</th>
+        <th>Business </th>
+      </tr>
+      {% for rows in rows %}
+        <tr>
+          <td>{{rows["firstname"]}}</td>
+          <td>{{rows["pathwayEnrolled"]}}</td>
+          <td>{{rows["businessWrittenYearToDate"]}}</td>
+        </tr>
+      {% endfor %}
+
+    </table>
+
+  </div>
+
+</div
+
+{% endblock %}
