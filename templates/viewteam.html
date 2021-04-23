@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+
+{% block title %}
+{{company}}
+{% endblock %}
+
+{% block main %}
+
+<script>
+  function myFunction() {
+      document.getElementById("adminchange").style.display = 'block';
+      }
+
+  function invite() {
+    document.getElementById("invite").style.display = 'block';
+  }
+</script>
+
+<div class="uk-card uk-card-default uk-card-small">
+  <div class="uk-text-center uk-card-body">
+    <h1 class="uk-text uk-text-lighter">{{teammembers[0]['company']}}</h1>
+    <h2 class="uk-text uk-text-lighter">Team Members</h2>
+  </div>
+<form method="POST">
+    <table class="uk-table uk-table-middle uk-table-divider uk-text uk-text-lighter">
+      <thead>
+        <th style="text-align: center; vertical-align: middle;">Name</th>
+        <th style="text-align: center; vertical-align: middle;">Email</th>
+        <th style="text-align: center; vertical-align: middle;">Last Login</th>
+        <th style="text-align: center; vertical-align: middle;">Role</th>
+        <th style="text-align: center; vertical-align: middle;">Status</th>
+        <th style="text-align: center; vertical-align: middle;"></th>
+      </thead>
+      {% for teammembers in teammembers %}
+      <tr>
+        <td style="text-align: center; vertical-align: middle;">{{teammembers['firstname']}} {{teammembers['lastname']}}</td>
+        <td style="text-align: center; vertical-align: middle;">{{teammembers['email']}}</td>
+        <input type="hidden" name="email" value="{{teammembers['email']}}">
+        <td style="text-align: center; vertical-align: middle;">{{teammembers['lastlogin']}}</td>
+        <td style="text-align: center; vertical-align: middle;">{{teammembers['adminlevel']}}</td>
+        {% if teammembers['status'] == 'invited' %}
+          <td style="text-align: center; vertical-align: middle;"><span class="uk-label uk-label-warning">{{teammembers['status']}}</span></td>
+        {% endif %}
+        {% if teammembers['status'] == 'active' %}
+          <td style="text-align: center; vertical-align: middle;"><span class="uk-label uk-label-success">{{teammembers['status']}}</span></td>
+        {% endif %}
+        {% if teammembers['status'] == 'suspended' %}
+          <td style="text-align: center; vertical-align: middle;"><span class="uk-label uk-label-danger">{{teammembers['status']}}</span></td>
+        {% endif %}
+        <td style="text-align: center; vertical-align: middle;"><a href="/viewteammember?email={{teammembers['email']}}" uk-icon="icon: cog"></a></td>
+      </tr>
+      {% endfor %}
+    </table>
+    <div class="uk-padding-small uk-text-center" style="display: none" id="adminchange">
+      <p class="uk-text uk-text-lighter uk-text-danger">Please enter your password to confirm changes</p><input name='userpassword' type="password"/>
+      <button class="uk-button uk-button-default uk-align-center" type="submit">Save changes</button>
+      </div>
+</form>
+</div>
+
+
+  <div id="center">
+    <a onclick="invite()" uk-icon="icon: plus; ratio: 2"></a>
+  </div>
+
+  <div class="uk-padding-small uk-text-center" style="display: none; padding: 20px" id="invite">
+    <h3 class="uk-text uk-text-lighter">Invite New Members Of The Team</h3>
+    <br>
+    <form action="/viewteam" method="post" uk-grid>
+            <div class="uk-width-1-6@s">
+                <input class="uk-input uk-form-width-medium uk-form-small"  autocomplete="off" autofocus class="uk-input" name="invitefirstname" placeholder="First Name" type="text" required>
+            </div>
+            <div class="uk-width-1-6@s">
+                <input class="uk-input uk-form-width-medium uk-form-small"  autocomplete="off" autofocus class="uk-input" name="invitelastname" placeholder="Last Name" type="text" required>
+            </div>
+            <div class="uk-width-1-6@s">
+                <input class="uk-input uk-form-width-medium uk-form-small" autocomplete="off" autofocus class="uk-input" name="inviteemail" placeholder="Email" type="text" required>
+            </div>
+            <div class="uk-width-1-6@s uk-grid-item-match">
+                <p class="uk-text uk-text-lighter uk-text-left">@{{teammembers[0]['companymail']}}</p>
+            </div>
+            <div class="uk-width-1-6@s">
+              <div uk-form-custom="target: > * > span:last-child">
+                  <select name="inviteadminlevel">
+                      <option value="Adm">ADM</option>
+                      <option value="Manager">Manager</option>
+                      <option value="Head">Head</option>
+                      <option value="Admin">Admin</option>
+                  </select>
+                  <span class="uk-link">
+                      <span uk-icon="icon: user; ratio: 1.5"></span>
+                      <span></span>
+                  </span>
+              </div>
+            </div>
+            <div class="uk-width-1-6@s">
+              <div uk-form-custom="target: > * > span:last-child">
+                  <select name="region">
+                    <option>Scotland and Northeast</option>
+                    <option>North</option>
+                    <option>Central</option>
+                    <option>London and Southeast</option>
+                    <option>Southwest and Northern Island</option>
+                  </select>
+                  <span class="uk-link">
+                      <span uk-icon="icon: location; ratio: 1.5"></span>
+                      <span></span>
+                  </span>
+              </div>
+            </div>
+
+    <div class="uk-padding uk-padding-medium uk-align-center">
+    <button type='submit' class="uk-button uk-button-primary" name='invite'>Invite</button>
+    </div>
+  </form>
+
+</div>
+
+{% endblock %}

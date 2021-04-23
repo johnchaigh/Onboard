@@ -6,70 +6,90 @@ New Person
 
 {% block main %}
 
-
 <div class="uk-card uk-card-default uk-card-small">
 
   <div class="uk-text-center uk-card-body">
       <h2 class="uk-text-center uk-text uk-text-lighter">Add A New Person</h2>
   </div>
 
-  <form action="/newperson" method="post" id="form" class="uk-text-center uk-text uk-text-lighter">
-    <div class="uk-margin">
-      <input autocomplete="off" autofocus class="uk-input" name="firstname" placeholder="First Name" type="text" required>
+  <form action="/newperson" method="post" id="form" class="uk-text-center uk-text uk-text-lighter uk-form-horizontal uk-grid-small" uk-grid>
+
+    <div class="uk-width-1-2">
+      <label class="uk-form-label" for="first">First Name</label>
+      <div class="uk-form-controls">
+        <input autocomplete="off" autofocus class="uk-input" for="first" name="firstname" type="text" required>
+      </div>
+    </div>
+
+    <div class="uk-width-1-2">
+      <label class="uk-form-label" for="surname">Surname</label>
+      <div class="uk-form-controls">
+        <input class="uk-input" name="lastname" id="surname" type="text" required>
+      </div>
+    </div>
+
+    <div class="uk-width-1-2">
+      <label class="uk-form-label" for="mobile">Mobile</label>
+      <div class="uk-form-controls">
+        <input class="uk-input" id="mobile" name="mobile" type="text" required>
+      </div>
+    </div>
+
+    <div class="uk-width-1-2">
+      <label class="uk-form-label" for="email">Email</label>
+      <div class="uk-form-controls">
+        <input class="uk-input" id="email" name="email" type="text" required>
+      </div>
+    </div>
+
+    <div class="uk-width-1-1">
+      <label class="uk-form-label" for="bam">Business Acquisition Manager</label>
+      <div class="uk-form-controls">
+        <input class="uk-input" id="bam" name="bam" type="text" required>
+      </div>
+    </div>
+
+    <div class="uk-width-1-1 uk-margin">
+      <label class="uk-form-label" style="text-align: right" for="laneselect-horizontal-text">Lane</label>
+      <div class="uk-form-controls">
+        <select class="uk-select" id="laneselect-horizontal-text" name="history">
+          {% for row in rows%}
+          <option><small>{{row['pathwayName']}}</small></option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="uk-width-1-1 uk-margin">
+        <label class="uk-form-label" style="text-align: right" for="exemploeddeal">Ex Employed Deal (£)</label>
+        <div class="uk-form-controls">
+          <input class="uk-input" id="exemploeddeal" name="exemployeddeal" type="int" required>
+        </div>
+      </div>
+
+    <div class="uk-width-1-1 uk-margin">
+       <label class="uk-form-label" style="text-align: right" for="exemployed-horizontal-text">Ex Employed Deal Expiry</label>
+        <div class="uk-form-controls">
+          <input class="uk-input" id="exemployed-horizontal-text" name="exemployeddealexpiry" placeholder="Ex Employed Deal Expiry" type="date" data-uk-datepicker="{format:'DD.MM.YYYY'}">
+        </div>
     </div>
 
     <div class="uk-margin">
-      <input class="uk-input" name="lastname" placeholder="Surname" type="text" required>
+      <label class="uk-form-label" style="text-align: right" for="minincome">Minimum Income Threshhold</label>
+      <div class="uk-form-controls">
+        <input class="uk-input" id="minincome" name="minincome" placeholder="Minimum Income Threshhold" type="text" required>
+      </div>
     </div>
 
     <div class="uk-margin">
-      <input class="uk-input" name="mobile" placeholder="Mobile Phone Number" type="text" required>
+      <label class="uk-form-label" style=" text-align: right" for="practice">Practice</label>
+      <div class="uk-form-controls">
+        <input class="uk-input" id="practice" name="practice" type="text">
+      </div>
     </div>
 
-    <div class="uk-margin">
-      <input class="uk-input" name="email" placeholder="Email Address" type="text" required>
+    <button class="uk-button uk-button-primary" type="submit">Submit</button>
+    </form>
+
     </div>
-
-    <div class="uk-margin">
-      <input class="uk-input" name="bam" placeholder="Business Acquisition Manager" type="text" required>
-    </div>
-
-    <div class="uk-margin">
-      <p style="text-align: left;" class="uk-text-left uk-text uk-text-lighter"> Lane:</p>
-      <select class="uk-select" name="history">
-        {% for row in rows%}
-        <option>{{row['pathwayName']}}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-<div class="uk-margin">
-  <input class="uk-input" name="exemployeddeal" placeholder="Ex Employed Deal in £" type="int" required>
-</div>
-
-<div class="uk-margin">
-  <input class="uk-input" name="exemployeddealexpiry" placeholder="Ex Employed Deal Expiry" type="text" data-uk-datepicker="{format:'DD.MM.YYYY'}">
-          </div>
-
-          <div class=" uk-margin">
-  <input class="uk-input" name="businessWrittenPreviousMonth" placeholder="Business Written Previous Month" type="int">
-</div>
-
-<div class="uk-margin">
-  <input class="uk-input" name="businessWrittenYearToDate" placeholder="Business Written Since Appointment" type="int">
-</div>
-
-<div class="uk-margin">
-  <input class="uk-input" name="minincome" placeholder="Minimum Income Threshhold" type="text" required>
-</div>
-
-<div class="uk-margin">
-  <input class="uk-input" name="practice" placeholder="Practice" type="text">
-</div>
-
-<button class="uk-button uk-button-primary" type="submit">Submit</button>
-</form>
-
-</div>
 
 {% endblock %}

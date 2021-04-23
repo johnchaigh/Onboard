@@ -59,8 +59,20 @@ People
             <td style="text-align: right;">Minimum Income Threshold :</td>
             <td><input type="text" name="minincome" value="{{ rows[0]['minincome'] }}"></td>
           </tr>
+          <tr>
+            <td style="text-align: right;">Region:</td>
+            <td>
+              <select class="uk-select" name="region">
+                <option>Scotland and Northeast</option>
+                <option>North</option>
+                <option>Central</option>
+                <option>London and Southeast</option>
+                <option>Southwest and Northern Island</option>
+              </select>
+            </td>  
+          </tr>
           </table>
-          <input type="hidden" name="email" value="{{ rows[0]['email'] }}">
+          <input type="hidden" name="email" value="{{rows[0]['email']}}">
           <br />
           <button class="uk-button uk-button-primary" type="submit">Update Fields</button>
           <br />

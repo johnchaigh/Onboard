@@ -6,9 +6,7 @@ Dashboard
 
 {% block main %}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-trendline"></script>
 
 <div class="homepagebackground">
   <div class="uk-card-small uk-padding uk-padding-medium">
@@ -31,9 +29,249 @@ Dashboard
         </div>
     </div>
 
+
+
  {% if colours is defined %}
 
-  <div  class="uk-padding" uk-filter="target: .js-filter">
+   <div id="totalbusiness" class="uk-modal-container" uk-modal>
+       <div class="uk-modal-dialog uk-modal-body">
+           <button class="uk-modal-close-default" type="button" uk-close></button>
+           <div class="uk-modal-header">
+             <h2 class="uk-modal-title uk-text uk-text-lighter">Total Business</h2>
+           </div>
+           <div class="uk-padding uk-padding-bottom">
+             <canvas id="incomechart2"></canvas>
+
+              <script>
+
+                 var income = {
+                   labels: {{ names | safe }},
+                   datasets: [{
+                     data: {{ incomedata }},
+                     backgroundColor: {{ colours | safe }},
+                   }]
+                 };
+
+                 var chartOptions = {
+                   startAngle: -Math.PI / 4,
+                   legend: {
+                     position: 'right'
+                   },
+                   animation: {
+                     animateRotate: true,
+                     duration: 600,
+                     easing: 'linear',
+                  },
+                  tooltips: {
+                    enabled: true
+                    }
+               };
+
+               var incomechart1 = document.getElementById("incomechart2");
+               var polarAreaChart = new Chart(incomechart1, {
+                 type: 'polarArea',
+                 data: income,
+                 options: chartOptions
+               });
+
+             </script>
+           </div>
+
+       </div>
+   </div>
+
+   <div id="distribution1" class="uk-modal-container" uk-modal>
+       <div class="uk-modal-dialog uk-modal-body">
+           <button class="uk-modal-close-default" type="button" uk-close></button>
+           <div class="uk-modal-header">
+             <h2 class="uk-modal-title uk-text uk-text-lighter">Distribution Of People</h2>
+           </div>
+           <div class="uk-padding uk-padding-bottom">
+             <canvas id="distribution"></canvas>
+              <script>
+                var ctx = document.getElementById("distribution").getContext('2d');
+                 var myChart = new Chart(ctx, {
+                   type: 'pie',
+                   data: {
+                     labels: {{ pathwaynames | safe }},
+                     datasets: [{
+                       backgroundColor: {{ colours | safe }},
+                       data: {{ pathwaynumbers | safe }}
+                     }]
+                   },
+                   options: {
+                       legend:{
+                         position: 'right',
+                             }
+                           }
+                         });
+
+             </script>
+           </div>
+       </div>
+   </div>
+
+   <div id="daysin2" class="uk-modal-container" uk-modal>
+       <div class="uk-modal-dialog uk-modal-body">
+           <button class="uk-modal-close-default" type="button" uk-close></button>
+           <div class="uk-modal-header">
+             <h2 class="uk-modal-title uk-text uk-text-lighter">Days in Pathway</h2>
+           </div>
+           <div class="uk-padding uk-padding-bottom">
+             <canvas id="daysin"></canvas>
+             <script>
+             var longestinpathwayCxt = document.getElementById("daysin").getContext("2d");
+             var longestinpathwayData = {
+                 labels: {{ names | safe }},
+                 datasets: [{
+                     label: ['Days in pathway'],
+                     data: {{ longestinpathwaydaysin | safe }},
+                     backgroundColor: {{ colours | safe }},
+                 }]
+             };
+
+             var longestinpathway = new Chart(longestinpathwayCxt, {
+                 type: 'horizontalBar',
+                 data: longestinpathwayData,
+                 options: {
+                   legend: {display: false},
+                     scales: {
+                         xAxes: [{
+                             ticks: {
+                             min: 0
+                             }
+                         }],
+                     }
+
+                 }
+             });
+             </script>
+           </div>
+       </div>
+   </div>
+
+   <div id="salesperformance" class="uk-modal-container" uk-modal>
+       <div class="uk-modal-dialog uk-modal-body">
+           <button class="uk-modal-close-default" type="button" uk-close></button>
+           <div class="uk-modal-header">
+             <h2 class="uk-modal-title uk-text uk-text-lighter">Sales Performance Against Target</h2>
+           </div>
+           <div class="uk-padding uk-padding-bottom">
+             <canvas id="targetperformance2"></canvas>
+             <script>
+               var targetperformanceCxt2 = document.getElementById("targetperformance2").getContext("2d");
+               var longestinpathwayData = {
+                   labels: {{ names | safe }},
+                   datasets: [{
+                       label: ['Performance on target £'],
+                       data: {{ targetperformance | safe }},
+                       backgroundColor: {{ colours | safe }},
+                   }]
+               };
+
+               var targetperformance = new Chart(targetperformanceCxt2, {
+                   type: 'bar',
+                   data: longestinpathwayData,
+                   options: {
+                     legend: {display: false},
+                       scales: {
+                           xAxes: [{
+                               ticks: {
+                               min: 0
+                               }
+                           }],
+                       }
+
+                   }
+               });
+             </script>
+           </div>
+       </div>
+   </div>
+
+   <div id="score2" class="uk-modal-container" uk-modal>
+       <div class="uk-modal-dialog uk-modal-body">
+           <button class="uk-modal-close-default" type="button" uk-close></button>
+           <div class="uk-modal-header">
+             <h2 class="uk-modal-title uk-text uk-text-lighter">Score</h2>
+             <i class="uk-text uk-text-lighter uk-align-left">Generated by a persons progress divided by the time to get to that point</i>
+           </div>
+
+           <div class="uk-padding uk-padding-bottom">
+             <canvas id="score"></canvas>
+             <script>
+             var topprogressionCxt = document.getElementById("score").getContext("2d");
+             var topprogressionData = {
+                 labels: {{ names | safe }},
+                 datasets: [{
+                     label: ['Score'],
+                     data: {{ score | safe }},
+                     backgroundColor: {{ colours | safe }},
+                 }]
+             };
+
+             var topprogression = new Chart(topprogressionCxt, {
+                 type: 'bar',
+                 data: topprogressionData,
+                 options: {
+                   legend: {display: false},
+                     scales: {
+                         yAxes: [{
+                             ticks: {
+                             min: 0
+                             }
+                         }],
+                     }
+
+                 }
+             });
+             </script>
+
+          </div>
+       </div>
+   </div>
+
+   <div id="steps" class="uk-modal-container" uk-modal>
+       <div class="uk-modal-dialog uk-modal-body">
+           <button class="uk-modal-close-default" type="button" uk-close></button>
+           <div class="uk-modal-header">
+             <h2 class="uk-modal-title uk-text uk-text-lighter">Steps Remaining Until Appointment</h2>
+           </div>
+           <div class="uk-padding uk-padding-bottom">
+             <canvas id="stepsremain2"></canvas>
+             <script>
+             var stepsremainCxt = document.getElementById("stepsremain2").getContext("2d");
+             var stepsremainData = {
+                 labels: {{ stepsremainnames | safe }},
+                 datasets: [{
+                     label: ['stepsremain'],
+                     data: {{ stepsremain | safe }},
+                     backgroundColor: {{ colours | safe }},
+
+                 }]
+             };
+
+             var stepsremain = new Chart(stepsremainCxt, {
+                 type: 'bar',
+                 data: stepsremainData,
+                 options: {
+                   legend: {display: false},
+                     scales: {
+                         yAxes: [{
+                             ticks: {
+                             min: 0
+                             }
+                         }],
+                     }
+
+                 }
+             });
+             </script>
+          </div>
+       </div>
+   </div>
+
+  <div class="uk-padding" uk-filter="target: .js-filter">
     <ul class="uk-subnav uk-subnav-pill uk-text-center" id="center">
         <li class="uk-active" uk-filter-control><a href="#">All</a></li>
         <li uk-filter-control="[data-color='business']"><a href="#">Business Performance</a></li>
@@ -45,21 +283,17 @@ Dashboard
 
         <li data-color="business">
             <div class="uk-card uk-card-default uk-card-body">
-              <p class="uk-text uk-text-lighter">Total Business: £{{ totalbusiness }}<p>
+              <a href="#totalbusiness" uk-toggle><p class="uk-text uk-text-lighter">Total Business: £{{ totalbusiness }}<p></a>
               <canvas id="incomechart1"></canvas>
-
                <script>
-
                   var incomechart1 = document.getElementById("incomechart1");
-
                   var income = {
                     labels: {{ names | safe }},
                     datasets: [{
                       data: {{ incomedata }},
-                      backgroundColor: {{ colours | safe }},
+                      backgroundColor: {{colours | safe}}
                     }]
                   };
-
                   var chartOptions = {
                     startAngle: -Math.PI / 4,
                     legend: {
@@ -69,10 +303,15 @@ Dashboard
                       animateRotate: true,
                       duration: 600,
                       easing: 'linear',
-                    }
-
+                    },
+                    hover: {
+                          mode: 'label',
+                    },
+                    plugins: {
+                      tooltips: {
+                          }
+                    },
                 };
-
                 var polarAreaChart = new Chart(incomechart1, {
                   type: 'polarArea',
                   data: income,
@@ -85,13 +324,13 @@ Dashboard
 
         <li data-color="progress">
             <div class="uk-card uk-card-default uk-card-body">
-              <p class="uk-text uk-text-lighter">Distribution of People<p>
+                <a href="#distribution1" uk-toggle><p class="uk-text uk-text-lighter"><p class="uk-text uk-text-lighter">Distribution of People<p></a>
               <canvas id="pathwaychart1"></canvas>
                <script>
-                 var ctx = document.getElementById("pathwaychart1").getContext('2d');
-                  var myChart = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
+                var ctx = document.getElementById("pathwaychart1").getContext('2d');
+                var myChart = new Chart(ctx, {
+                  type: 'pie',
+                  data: {
                       labels: {{ pathwaynames | safe }},
                       datasets: [{
                         backgroundColor: {{ colours | safe }},
@@ -101,7 +340,12 @@ Dashboard
                     options: {
                         legend:{
                           position: 'bottom',
-                              }
+                        },
+                        plugins: {
+                          tooltips: {
+                            enabled: true,
+                          }
+                        }
                             }
                           });
 
@@ -111,7 +355,7 @@ Dashboard
 
         <li data-color="progress">
             <div class="uk-card uk-card-default uk-card-body">
-              <p class="uk-text uk-text-lighter">Days in Pathway<p>
+              <a href="#daysin2" uk-toggle><p class="uk-text uk-text-lighter">Days in Pathway<p></a>
                 <canvas id="longestinpathway"></canvas>
                 <script>
 
@@ -147,43 +391,41 @@ Dashboard
 
         <li data-color="business">
             <div class="uk-card uk-card-default uk-card-body">
-              <p class="uk-text uk-text-lighter">Sales Performance Against Target<p>
+              <a href="#salesperformance" uk-toggle><p class="uk-text uk-text-lighter">Sales Performance Against Target<p></a>
                 <canvas id="targetperformance"></canvas>
                 <script>
+                  var targetperformanceCxt = document.getElementById("targetperformance").getContext("2d");
+                  var longestinpathwayData = {
+                      labels: {{ names | safe }},
+                      datasets: [{
+                          label: ['Performance on target £'],
+                          data: {{ targetperformance | safe }},
+                          backgroundColor: {{ colours | safe }},
+                      }]
+                  };
 
+                  var targetperformance = new Chart(targetperformanceCxt, {
+                      type: 'bar',
+                      data: longestinpathwayData,
+                      options: {
+                        legend: {display: false},
+                          scales: {
+                              xAxes: [{
+                                  ticks: {
+                              		min: 0
+                                  }
+                              }],
+                          }
 
-                var targetperformanceCxt = document.getElementById("targetperformance").getContext("2d");
-                var longestinpathwayData = {
-                    labels: {{ names | safe }},
-                    datasets: [{
-                        label: ['Performance on target £'],
-                        data: {{ targetperformance | safe }},
-                        backgroundColor: {{ colours | safe }},
-                    }]
-                };
-
-                var targetperformance = new Chart(targetperformanceCxt, {
-                    type: 'bar',
-                    data: longestinpathwayData,
-                    options: {
-                      legend: {display: false},
-                        scales: {
-                            xAxes: [{
-                                ticks: {
-                            		min: 0
-                                }
-                            }],
-                        }
-
-                    }
-                });
+                      }
+                  });
                 </script>
             </div>
         </li>
 
         <li data-color="progress">
             <div class="uk-card uk-card-default uk-card-body">
-              <p class="uk-text uk-text-lighter">Score<p>
+              <a href="#score2" uk-toggle><p class="uk-text uk-text-lighter">Score<p></a>
                 <canvas id="topprogression"></canvas>
                 <script>
 
@@ -216,97 +458,12 @@ Dashboard
             </div>
         </li>
 
-        <li data-color="progress">
-            <div class="uk-card uk-card-default uk-card-body">
-              <p class="uk-text uk-text-lighter">Time / Progress<p>
-                  <canvas id="myChart1"></canvas>
-                   <script>
-                   new Chart.Scatter(document.getElementById("myChart1"), {
-                   type: 'scatter',
-                   data: {
-                     labels: {{ names | safe }},
-                     datasets: [{
-                       data: {{ scatterdata | safe }},
-                       showLine: false,
-                       fill: true,
-                       tension: 0.4,
-                       borderColor: 'blue',
-                       borderWidth: 1,
-                       borderColor: "white",
-                       backgroundColor: "rgba(0, 137, 255, 0.4)",
-                       opacity: .1,
-                       pointBackgroundColor: {{ colours | safe }},
-                       pointBorderColor: 'white',
-                       pointRadius: 8,
-                       pointHoverRadius: 9,
-                       spanGaps: true,
-                       trendlineLinear: {
-                                style: "rgb(43 ,66 ,255, 0.3)",
-                                lineStyle: "solid",
-                                width: 1
-                              }
-                     },],
-                   },
-                   options: {
-                     animation: {
-                      easing: 'easeInOutQuad',
-                      duration: 400
-                    },
-                    spanGaps: true,
-                     tooltips: {
-                       mode: 'index',
-                       intersect: false,
-                       callbacks: {
-                               title: function(tooltipItem, data) {
-                         return data['labels'][tooltipItem[0]['index']];},
-                                 label: function(tooltipItem) {
-                                   return + Number(tooltipItem.yLabel) + " days in pathway" +', '+ Number(tooltipItem.xLabel)+"% complete";
-                                 }
-                             }
-                         },
-                            responsive: true,
-                            legend: {display: false},
-                      scales: {
-                          xAxes: [{
-                                  display: true,
-                                  ticks: {
-                                      beginAtZero: true,
-                                      steps: 10,
-                                      stepValue: 5,
-                                      max: 100
-                                      },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: '% Progress'
-                                    }
-                                }],
-                          yAxes: [{
-                                  display: true,
-                                  ticks: {
-                                      beginAtZero: true,
-
-                                      },
-                                    scaleLabel: {
-                                        display: true,
-                                        labelString: 'Days in Pathway'
-                                          }
-                                      }],
-                            },
-                            showLines: true
-                          }
-                   });
-                  </script>
-            </div>
-        </li>
-
         <li data-color="preappointment">
 
           <div class="uk-card uk-card-default uk-card-body">
-            <p class="uk-text uk-text-lighter">Steps Remaining Before Appointment<p>
+            <a href="#steps" uk-toggle><p class="uk-text uk-text-lighter">Steps Remaining Before Appointment<p>
               <canvas id="stepsremain"></canvas>
               <script>
-
-
               var stepsremainCxt = document.getElementById("stepsremain").getContext("2d");
               var stepsremainData = {
                   labels: {{ stepsremainnames | safe }},

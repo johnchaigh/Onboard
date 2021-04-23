@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block title %}
+{{ teammember[0]["firstname"] }} {{ teammember[0]['lastname'] }}
+{% endblock %}
+
+{% block main %}
+
+<div class="uk-card uk-card-default uk-card-small">
+
+  <div class="uk-card-body" id="width">
+
+    <div class="uk-text-center uk-card-body">
+      <h2 class="uk-text uk-text-lighter">{{ teammember[0]["firstname"] }} {{ teammember[0]['lastname'] }}</h2>
+      {% if teammember[0]['status'] == 'invited' %}
+        <span class="uk-label uk-label-warning">{{teammember[0]['status']}}</span>
+      {% endif %}
+      {% if teammember[0]['status'] == 'active' %}
+        <span class="uk-label uk-label-success">{{teammember[0]['status']}}</span>
+      {% endif %}
+      {% if teammember[0]['status'] == 'suspended' %}
+        <span class="uk-label uk-label-danger">{{teammember[0]['status']}}</span>
+      {% endif %}
+      <p class="uk-text uk-text-lighter uk-text-small uk-text-center">Last Login: {{ teammember[0]["lastlogin"] }}</p>
+    </div>
+
+      <table class="uk-table uk-table-small uk-text uk-text-lighter uk-text-center">
+        <tr><td>Admin level: {{ teammember[0]["adminlevel"] }}</td></tr>
+        <tr><td>Email: {{ teammember[0]["email"] }}</td></tr>
+        <tr><td>Region: {{ teammember[0]["region"] }}</td></tr>
+        <tr><td>{{ teammember[0]["jobrole"] }} at {{ teammember[0]["company"] }}</td></tr>
+        <tr><td>Region: {{ teammember[0]["region"] }}</td></tr>
+        <tr><td>Reset Password</td></tr>
+      </table>
+
+      {% if teammember[0]['status'] == 'suspended' %}
+      <div id="center">
+        <a class="uk-button uk-button-primary" href="/viewteam">Back To Team</a> <a href="/suspenduser?id=active&email={{ teammember[0]["email"] }}" class="uk-button uk-button-secondary">Reactivate</a>
+      </div>
+      {% endif %}
+
+      {% if teammember[0]['status'] == 'active' %}
+      <div id="center">
+        <a class="uk-button uk-button-primary" href="/viewteam">Back To Team</a> <a href="/suspenduser?id=suspend&email={{ teammember[0]["email"] }}" class="uk-button uk-button-danger">Suspend Person</a>
+      </div>
+      {% endif %}
+
+      {% if teammember[0]['status'] == 'invited' %}
+      <div id="center">
+        <a class="uk-button uk-button-primary" href="/viewteam">Back To Team</a> <a href="/suspenduser?id=cancel&email={{ teammember[0]["email"] }}" class="uk-button uk-button-danger">Cancel Invitation</a>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  {% endblock %}

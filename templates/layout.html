@@ -21,9 +21,9 @@
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
   <title>onboard | {% block title %}{% endblock %}</title>
 
@@ -37,16 +37,7 @@
     }
   </style>
 
-  <script>
-
-  {
-    % block script %
-  }
-
-    {
-    % endblock %
-  }
-  </script>
+  
 
 </head>
 
@@ -82,9 +73,10 @@
             <a href="#">{{FullName}}<span uk-icon="icon:  triangle-down"></span></a>
             <div class="uk-navbar-dropdown">
               <ul class="uk-nav uk-navbar-dropdown-nav">
-                <li><a href="/profile">Profile</a></li>
+                <li><a href="/profile"><span uk-icon="icon: user; ratio: .9"></span>  {{FullName}}</a></li>
+                <li><a href="/viewteam"><span uk-icon="icon: cog; ratio: .9"></span> {{company}} Team</a></li>
                 <li class="uk-nav-divider"></li>
-                <li><a href="/logout">Log Out</a></li>
+                <li><a href="/logout"><span uk-icon="icon: sign-out; ratio: .9"></span> Log-Out</a></li>
                 {% else %}
                 <li><a href="/register">Register</a></li>
                 <li><a href="/login">Login</a></li>

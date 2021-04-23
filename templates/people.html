@@ -6,159 +6,283 @@ People
 
 {% block main %}
 
+
 <div class="uk-card uk-card-default uk-card-small">
   <div class="uk-text-center uk-card-body">
-    <h1 class="uk-text uk-text-lighter">People</h1>
+    <h2 class="uk-text uk-text-lighter">People</h2>
+    <br>
   </div>
 
-<div id="scatter" style="padding-left: 10px; padding-right: 30px; padding-bottom: 80px">
+<div class="uk-text-center">
 
-  <canvas id="myChart1" height="150px"></canvas>
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/chart.js/dist/Chart.min.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-trendline"></script>
-   <script>
-   new Chart.Scatter(document.getElementById("myChart1"), {
-   type: 'bubble',
-   data: {
-     labels: {{ labels | safe }},
-     datasets: [{
-       data: {{ data | safe }},
-       showLine: false,
-       fill: true,
-       tension: 0.4,
-       borderColor: 'blue',
-       borderWidth: 1,
-       borderColor: "white",
-       backgroundColor: "rgba(0, 137, 255, 0.4)",
-       opacity: .1,
-       pointBackgroundColor: {{bubblecolour | safe}},
-       pointBorderColor: 'white',
-       pointRadius: 8,
-       pointHoverRadius: 9,
-       spanGaps: true,
-       trendlineLinear: {
-                style: "rgb(43 ,66 ,255, 0.3)",
-                lineStyle: "solid",
-                width: 2
-              }
-     },],
-   },
-   options: {
-     animation: {
-      easing: 'easeInOutQuad',
-      duration: 400
-    },
-    spanGaps: true,
-     tooltips: {
-       mode: 'index',
-       intersect: false,
-       callbacks: {
-               title: function(tooltipItem, data) {
-         return data['labels'][tooltipItem[0]['index']];},
-                 label: function(tooltipItem) {
-                   return + Number(tooltipItem.yLabel) + " days since appointment" +', '+ Number(tooltipItem.xLabel)+"% complete";
-                 }
-             }
-         },
-            responsive: true,
-            legend: {display: false},
-      scales: {
-          xAxes: [{
-                  display: true,
-                  ticks: {
-                      beginAtZero: true,
-                      steps: 10,
-                      stepValue: 5,
-                      max: 100
-                      },
-                    scaleLabel: {
-                        display: true,
-                        labelString: '% Progress'
-                    }
-                }],
-          yAxes: [{
-                  display: true,
-                  ticks: {
-                      beginAtZero: true,
+  <ul class="uk-subnav uk-subnav-pill uk-grid" uk-switcher="animation: uk-animation-fade">
+    <li class="uk-width-1-2@m"><a href="#">Progress GAANT</a></li>
+    <li class="uk-width-1-2@m"><a href="#">Progess Scatter</a></li>
+  </ul>
 
-                      },
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Days Since Appointment'
+  <ul class="uk-switcher uk-margin uk-padding">
+      <li>
+        <div class="uk-child-width-1-3@m uk-grid-large uk-padding" uk-grid>
+          <div class="uk-child-width-1-1@m" >
+            <p style="padding:8px; border-style: hidden hidden solid hidden; border-width: 4px; border-color: rgba(209,86,102,1)" class="uk-text uk-text-lighter">Days to appointment</p>
+          </div>
+          <div class="uk-child-width-1-1@m">
+            <p style="padding:8px; border-style: hidden hidden solid hidden; border-width: 4px; border-color: rgba(70,109,128,1)" class="uk-text uk-text-lighter">Days since appointment</p>
+          </div>
+          <div class="uk-child-width-1-1@m">
+            <p style="padding:8px; border-style: hidden hidden solid hidden; border-width: 4px; border-color: rgba(105,164,191,1)" class="uk-text uk-text-lighter">Estimated time to graduation</p>
+          </div>
+        </div>
+      <canvas id="newbar"></canvas>
+        <script>
+          var ctx = document.getElementById('newbar').getContext('2d');
+          var newbar = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ stackednames | safe }},
+                datasets: [{
+                    data: {{ preappointmentdays | safe }},
+                    label: 'Days to appointment',
+                    backgroundColor: "rgba(209,86,102,1)",
+                    hoverBackgroundColor: "rgba(209,86,102,.7)",
+                    order: 2
+                },{
+                    data: {{ progresstodate | safe }},
+                    label: 'Days since appointment',
+                    backgroundColor: "rgba(70,109,128,1)",
+                    hoverBackgroundColor: "rgba(70,109,128,.7)",
+                    order: 1
+                },{
+                    data: {{ estimatedfinish | safe }},
+                    label: 'Estimated days to graduation',
+                    backgroundColor: "rgba(105,164,191,1)",
+                    hoverBackgroundColor: "rgba(105,164,191,0.7",
+                    order: 3,
+                }]
+          },
+            options: {
+              plugins: {
+                legend: {
+                  display: false,
+                }
+              },
+              responsive: true,
+              indexAxis: 'y',
+              scales: {
+                  y: {
+                        beginAtZero: true,
+                        stacked: true
+                    },
+                    x:{
+                      stacked: true,
+                      ticks: {
+                          callback: function(value, index, values) {
+                              return value + ' Days' ;
                           }
-                      }],
-            },
-            showLines: true
+                        },
+                    },
+                }
+            }
+        });
+          </script>
+      </li>
 
-          }
-   });
-  </script>
-</div>
+      <li>
+          <div class="uk-child-width-1-2@m uk-grid-large uk-padding" uk-grid>
+            <div class="uk-child-width-1-1@m">
+              <p style="padding:8px; border-style: hidden hidden solid hidden; border-width: 4px; border-color: rgba(209,86,102,1)" class="uk-text uk-text-lighter">Below earnings target</p>
+            </div>
+            <div class="uk-child-width-1-1@m">
+              <p style="padding:8px; border-style: hidden hidden solid hidden; border-width: 4px; border-color: rgba(70,109,128,1)" class="uk-text uk-text-lighter">Above earnings target</p>
 
-<div class="uk-card uk-card-default uk-card-small">
-  <div class="uk-text-center uk-card-body">
-    <h2 class="uk-text uk-text-lighter">Appointed</h2>
+            </div>
+          </div>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-trendline"></script>
+        <canvas id="newscatter"></canvas>
+          <script>
+            var names = {{ labels | safe }};
+            var ctx = document.getElementById('newscatter').getContext('2d');
+            var newscatter = new Chart(ctx, {
+              type: 'scatter',
+              data: {
+                labels: names,
+                datasets: [{
+                  data: {{ data | safe }},
+                  backgroundColor: {{bubblecolour | safe}},
+                  pointRadius: 9,
+                  pointHoverRadius: 11,
+                  trendlineLinear: {
+                		style: "rgba(255,105,180, .8)",
+                		lineStyle: "dotted|solid",
+                		width: 2
+                	}
+                  },],
+              },
+              options: {
+                scales: {
+                    x: {
+                      ticks: {
+                          callback: function(value, index, values) {
+                              return value + '%' ;
+                          }
+                        },
+                      suggestedMin: 0,
+                      suggestedMax: 100,
+                      title: {
+                        display: true,
+                        text: 'Percent Complete',
+                        padding: 20
+                      },
+                    },
+                    y: {
+                      title: {
+                        display: true,
+                        text: 'Time in Pathway',
+                        padding: 20
+                      },
+                      ticks: {
+                          callback: function(value, index, values) {
+                              return value + ' days' ;
+                          }
+                        },
+                      suggestedMin: 0
+                      }
+                    },
+                responsive: true,
+                plugins: {
+                  tooltip: {
+                    displayColors: false,
+                    enabled: true,
+                    callbacks: {
+                        label: function(context) {
+                          var number = Number(context.dataIndex);
+                          var name = names[number];
+                            return name;
+                          },
+                          afterLabel: function(context) {
+                            var days =  context.parsed.y;
+                            var progress =  context.parsed.x;
+                              return name + 'Days: ' + days + '; Progress: ' + progress +"%";
+                            }
+                        }
+                      },
+                  legend: {
+                    display: false,
+                  },
+                  title: {
+                    display: false,
+                  }
+                }
+              }
+            });
+          </script>
+      </li>
+
+        </ul>
+      </div>
+
+  <div class="uk-grid-small uk-child-width-expand@s uk-text-center uk-padding" uk-grid>
+    <div>
+      <h2>{{rows[0]['averagescore']}}</h2>
+      <p class="uk-text-uppercase uk-text-lighter">Average Score</p>
+    </div>
+    <div class="uk-divider-vertical">
+      <h2>{{rows[0]['averageprogressnumber']}}%</h2>
+        <p class="uk-text-uppercase uk-text-lighter">Average Progress</p>
+    </div>
+    <div class="uk-divider-vertical">
+      {% if rows[0]['averagebusiness'] > rows[0]['averagebusinesstarget'] %}
+      <h2 uk-tooltip="title: £ {{rows[0]['averagebusiness'] - rows[0]['averagebusinesstarget']}} on target"><span style="color: #1e90ff;" uk-icon="icon: triangle-up; ratio: 1.5"></span>£{{rows[0]['averagebusiness']}}</h2>
+      {% endif %}
+      {% if rows[0]['averagebusiness'] < rows[0]['averagebusinesstarget'] %}
+      <h2 uk-tooltip="title: £ {{rows[0]['averagebusiness'] - rows[0]['averagebusinesstarget']}} on target" ><span style="color: #ff6347;" uk-icon="icon: triangle-down; ratio: 1.5"></span>£{{rows[0]['averagebusiness']}}</h2>
+      {% endif %}
+      <p class="uk-text-uppercase uk-text-lighter">Average Business Written</p>
+      </div>
   </div>
+  <div class="uk-padding uk-padding-medium">
+    <ul uk-accordion="duration: 300; multiple: true">
+        <li class="uk-open">
+          <h1 class="uk-accordion-title uk-text-lighter uk-text-large uk-text-center" href="#">Appointed</h1>
+          <div class="uk-accordion-content">
+            <table class="uk-table uk-table-middle uk-table-divider uk-text uk-text-lighter">
+              <thead>
+                <th><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="name" name='sort'>Name</button></form></th>
+                <th><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="pathway" name='sort'>Pathway</button></form></th>
+                <th style="text-align: center; vertical-align: middle;"><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="progress" name='sort'>Progress</button></form></th>
+                <th style="text-align: center; vertical-align: middle;">Date Appointed</th>
+                <th style="text-align: center; vertical-align: middle;"><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="days" name='sort'>Days since appointment</button></form></th>
+                <th style="text-align: center; vertical-align: middle;">Est Graduation</th>
+                <th style="text-align: center; vertical-align: middle;"><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="score" name='sort'>Score</button></form></th>
+              </thead>
+              {% for appointed in appointed %}
+              <tr>
+                <td><a href="/viewperson?name={{appointed['email']}}"><small>{{appointed['firstname']}} {{appointed['lastname']}}</small></a></td>
+                <td><a href="/progress?name={{appointed["email"]}}&pathway={{appointed['pathwayEnrolled']}}"><small>{{appointed['pathwayEnrolled']}}</small></a></td>
+                <td style="text-align: center; vertical-align: middle;"><small>{{appointed['pathwayEnrolledProgress']}}%</small></td>
+                <td style="text-align: center; vertical-align: middle;"><small>{{appointed['dateappointed']}}</small></td>
+                <td style="text-align: center; vertical-align: middle;"><small>{{appointed['dayssinceappointment']}}</small></td>
+                <td style="text-align: center; vertical-align: middle;"><small>{{appointed['estcompletion']}}</small></td>
+                {% if appointed['businessWrittenYearToDate'] >= (appointed['dayssinceappointment'] * 165) %}
+                  <td uk-tooltip="title: £{{appointed['businessWrittenYearToDate'] - (appointed['dayssinceappointment'] * 165)}} above target" style="text-align: center; vertical-align: middle;"><span class="badge badge-pill badge-primary">{{appointed['score']}}</span></td>
+                {% else %}
+                  <td uk-tooltip="title: £{{appointed['businessWrittenYearToDate'] - (appointed['dayssinceappointment'] * 165)}} short of target" style="text-align: center; vertical-align: middle;"><span class="badge badge-pill badge-danger">{{appointed['score']}}</span></td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+            </table>
+          </div>
+        </li>
+        <li>
+          <h2 class="uk-accordion-title uk-text-lighter uk-text-large uk-text-center" href="#">Pre Appointment</h2>
+          <div class="uk-accordion-content">
+              <table class="uk-table uk-table-middle uk-table-divider uk-text uk-text-lighter">
+                <thead>
+                  <th><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="name" name='sort'>Name</button></form></th>
+                  <th><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="pathway" name='sort'>Pathway</button></form></th>
+                  <th style="text-align: center; vertical-align: middle;"><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="progress" name='sort'>Stages until Appointment</button></form></th>
+                  <th style="text-align: center; vertical-align: middle;">Enrolled</th>
+                  <th style="text-align: center; vertical-align: middle;"><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="days" name='sort'>Days Enrolled</button></form></th>
+                </thead>
 
-    <table class="uk-table uk-table-middle uk-table-divider uk-text uk-text-lighter">
-      <thead>
-        <th><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="name" name='sort'>Name</button></form></th>
-        <th><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="pathway" name='sort'>Pathway</button></form></th>
-        <th style="text-align: center; vertical-align: middle;"><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="progress" name='sort'>Progress</button></form></th>
-        <th style="text-align: center; vertical-align: middle;">Date Appointed</th>
-        <th style="text-align: center; vertical-align: middle;"><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="days" name='sort'>Days since appointment</button></form></th>
-        <th style="text-align: center; vertical-align: middle;">Est Graduation</th>
-        <th style="text-align: center; vertical-align: middle;"><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="score" name='sort'>Score</button></form></th>
+                {% for preappointment in preappointment %}
+                <tr>
+                  <td><a href="/viewperson?name={{preappointment['email']}}"><small>{{preappointment['firstname']}} {{preappointment['lastname']}}</small></a></td>
+                  <td><a href="/progress?name={{preappointment["email"]}}&pathway={{preappointment['pathwayEnrolled']}}"><small>{{preappointment['pathwayEnrolled']}}</small></a></td>
+                  <td style="text-align: center; vertical-align: middle;"><small>{{preappointment['pathwayEnrolledProgress']}}</small></td>
+                  <td style="text-align: center; vertical-align: middle;"><small>{{preappointment['pathwayEnrolledDate']}}</small></td>
+                  <td style="text-align: center; vertical-align: middle;"><small>{{preappointment['daysinpathway']}}</small></td>
+                </tr>
+                {% endfor %}
+              </table>
+          </div>
+        </li>
+        {% if graduated is defined %}
+        <li>
+            <h2 class="uk-accordion-title uk-text-lighter uk-text-large uk-text-center" href="#">Graduated</h2>
+            <div class="uk-accordion-content">
+              <table class="uk-table uk-table-middle uk-table-divider uk-text uk-text-lighter">
+                <thead>
+                  <th><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="name" name='sort'>Name</button></form></th>
+                  <th><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="pathway" name='sort'>Pathway</button></form></th>
+                  <th style="text-align: center; vertical-align: middle;">Date Enrolled</th>
+                </thead>
 
-      </thead>
-      {% for appointed in appointed %}
-      <tr>
-        <td><a href="/viewperson?name={{appointed['email']}}"><small>{{appointed['firstname']}} {{appointed['lastname']}}</small></a></td>
-        <td><a href="/progress?name={{appointed["email"]}}&pathway={{appointed['pathwayEnrolled']}}"><small>{{appointed['pathwayEnrolled']}}</small></a></td>
-        <td style="text-align: center; vertical-align: middle;"><small>{{appointed['pathwayEnrolledProgress']}}%</small></td>
-        <td style="text-align: center; vertical-align: middle;"><small>{{appointed['dateappointed']}}</small></td>
-        <td style="text-align: center; vertical-align: middle;"><small>{{appointed['dayssinceappointment']}}</small></td>
-        <td style="text-align: center; vertical-align: middle;"><small>{{appointed['estcompletion']}}</small></td>
-        {% if appointed['businessWrittenYearToDate'] >= (appointed['dayssinceappointment'] * 165) %}
-          <td uk-tooltip="title: £{{appointed['businessWrittenYearToDate'] - (appointed['dayssinceappointment'] * 165)}} above target" style="text-align: center; vertical-align: middle;"><span class="badge badge-pill badge-primary">{{appointed['score']}}</span></td>
-        {% else %}
-          <td uk-tooltip="title: £{{appointed['businessWrittenYearToDate'] - (appointed['dayssinceappointment'] * 165)}} short of target" style="text-align: center; vertical-align: middle;"><span class="badge badge-pill badge-danger">{{appointed['score']}}</span></td>
+                {% for graduated in graduated %}
+                <tr>
+                  <td><a href="/viewperson?name={{graduated['email']}}"><small>{{graduated['firstname']}} {{graduated['lastname']}}</small></a></td>
+                  <td><a href="/progress?name={{graduated["email"]}}&pathway={{graduated['pathwayEnrolled']}}"><small>{{graduated['pathwayEnrolled']}}</small></a></td>
+                  <td style="text-align: center; vertical-align: middle;"><small>{{graduated['pathwayEnrolledDate']}}</small></td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+        </li>
         {% endif %}
-      </tr>
-      {% endfor %}
-    </table>
-</div>
-
-<div class="uk-card uk-card-default uk-card-small">
-  <div class="uk-text-center uk-card-body">
-    <h2 class="uk-text uk-text-lighter">Pre Appointment</h2>
-  </div>
-    <table class="uk-table uk-table-middle uk-table-divider uk-text uk-text-lighter">
-      <thead>
-        <th><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="name" name='sort'>Name</button></form></th>
-        <th><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="pathway" name='sort'>Pathway</button></form></th>
-        <th style="text-align: center; vertical-align: middle;"><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="progress" name='sort'>Stages until Appointment</button></form></th>
-        <th style="text-align: center; vertical-align: middle;">Enrolled</th>
-        <th style="text-align: center; vertical-align: middle;"><form action='/people' method='post'><button type='submit' class="uk-button uk-button-link" value="days" name='sort'>Days Enrolled</button></form></th>
-      </thead>
-      {% for preappointment in preappointment %}
-      <tr>
-        <td><a href="/viewperson?name={{preappointment['email']}}"><small>{{preappointment['firstname']}} {{preappointment['lastname']}}</small></a></td>
-        <td><a href="/progress?name={{preappointment["email"]}}&pathway={{preappointment['pathwayEnrolled']}}"><small>{{preappointment['pathwayEnrolled']}}</small></a></td>
-        <td style="text-align: center; vertical-align: middle;"><small>{{preappointment['pathwayEnrolledProgress']}}</small></td>
-        <td style="text-align: center; vertical-align: middle;"><small>{{preappointment['pathwayEnrolledDate']}}</small></td>
-        <td style="text-align: center; vertical-align: middle;"><small>{{preappointment['daysinpathway']}}</small></td>
-      </tr>
-      {% endfor %}
-    </table>
-
-
+    </ul>
   </div>
   <div id="center">
     <a href="/newperson" uk-icon="icon: plus; ratio: 2"></a>
   </div>
-
-</div>
 
 {% endblock %}

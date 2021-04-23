@@ -20,6 +20,7 @@ Pathways
           <th class="uk-table-small">Pathway Name</th>
           <th class="uk-table-expand">Pathway Description</th>
           <th class="uk-table-small" style="text-align: center; vertical-align: middle;">Number Enrolled</th>
+          <th class="uk-table-small" style="text-align: center; vertical-align: middle;">Average Completion</th>
         </tr>
       </thead>
       <tbody>
@@ -30,6 +31,9 @@ Pathways
           <td><small><a href="/viewpathway?name={{pathway["pathwayName"]}}">{{ pathway["pathwayName"] }}</a></small></td>
           <td><small>{{ pathway["pathwayDescription"] }}</small></td>
           <td style="text-align: center; vertical-align: middle;"><small>{{ pathway["enrolled"] }}</small></td>
+          {% if pathway["averagetimecompletion"] > 0 %}
+          <td style="text-align: center; vertical-align: middle;"><small>{{ pathway["averagetimecompletion"] }} days</small></td>
+          {% endif %}
         </tr>
 
         {% endfor %}
@@ -41,6 +45,35 @@ Pathways
     <div id="center">
       <a href="/newpathway" uk-icon="icon: plus; ratio: 2"></a>
     </div>
+
+    <table class="uk-table uk-table-middle uk-table-divider uk-padding-small" id="width">
+
+      <thead>
+        <tr>
+          <th class="uk-table-small">Pathway Name</th>
+          <th class="uk-table-expand">Pathway Description</th>
+          <th class="uk-table-small" style="text-align: center; vertical-align: middle;">Number Enrolled</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <div class="uk-text-center uk-card-body">
+          <h2 class="uk-text uk-text-lighter">Organisation Pathways</h2>
+        </div>
+
+        {% for companypathways in companypathways %}
+
+        <tr>
+          <td><small><a href="/viewpathway?name={{companypathways["pathwayName"]}}">{{ companypathways["pathwayName"] }}</a></small></td>
+          <td><small>{{ companypathways["pathwayDescription"] }}</small></td>
+          <td style="text-align: center; vertical-align: middle;"><small>{{ companypathways["enrolled"] }}</small></td>
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
 
 </div>
 

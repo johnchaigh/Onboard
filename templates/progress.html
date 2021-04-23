@@ -6,6 +6,7 @@ Progress
 
 {% block main %}
 
+
 <div class="uk-card uk-card-default uk-card-small">
 
   <div class="uk-text-center uk-card-body uk-text uk-text-lighter" id="width">
@@ -29,7 +30,7 @@ Progress
     <tbody>
       {% for pathwayprogress in pathwayprogress %}
       <tr style="background-color:#e0edf5">
-        <td style="text-align: center"><small>{{ pathwayprogress["stagenumber"] }}</small></td>
+        <td id="{{ pathwayprogress["stagenumber"] | safe }}" style="text-align: center"><small>{{ pathwayprogress["stagenumber"] }}</small></td>
         <td ><small>{{ pathwayprogress["stagecontent"] }}</small></td>
         <td><small>{{ pathwayprogress["stagenotes"] }}</small></td>
         <td><small>{{ pathwayprogress["stageowner"] }}</small></td>
@@ -40,7 +41,7 @@ Progress
       <tr></tr>
       {% for pathwayremaining in pathwayremaining %}
       <tr style="background-color:#f7f7f7">
-        <td style="text-align: center"><small>{{ pathwayremaining["stagenumber"] }}</small></td>
+        <td id="{{ pathwayremaining["stagenumber"] | safe }}" style="text-align: center"><small>{{ pathwayremaining["stagenumber"] }}</small></td>
         <td><small>{{ pathwayremaining["stagecontent"] }}</small></td>
         <td><small>{{ pathwayremaining["stagenotes"] }}</small></td>
         <td><small>{{ pathwayremaining["stageowner"] }}</small></td>
@@ -52,14 +53,11 @@ Progress
 
   <div id="center">
     <a href="/pathways" class="uk-button uk-button-primary">Back To Pathways</a>
-    <button class="uk-button uk-button-danger uk-margin-small-right" type="button" uk-toggle="target: #modal-example">Remove From Pathway</button>
-  </div </div>
+    <button class="uk-button uk-button-danger uk-margin-small-right" type="button" uk-toggle="target: #modal">Remove From Pathway</button>
+    </div
+  </div>
 
-  <div id="center">
-
-
-
-    <div id="modal-example" uk-modal>
+    <div id="modal" uk-modal>
     <div class="uk-modal-dialog uk-modal-body">
         <h2 class="uk-modal-title">Warning!</h2>
         <p>Are you sure you want to remove this person? This cannot be undone.</p>
@@ -69,5 +67,6 @@ Progress
         </p>
     </div>
 </div>
+
 
   {% endblock %}

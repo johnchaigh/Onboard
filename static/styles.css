@@ -2,7 +2,7 @@
  * @Author: johnhaigh
  * @Date:   2020-06-24T18:49:42+01:00
  * @Last modified by:   johnhaigh
- * @Last modified time: 2021-02-25T10:30:46+00:00
+ * @Last modified time: 2021-04-04T20:42:38+01:00
  */
 
 #form {
@@ -96,9 +96,89 @@ body{
   color:MediumSeaGreen;
 }
 
-/* Color Theme Swatches in Hex */
-.My-Color-Theme-1-hex { color: #17252A; }
-.My-Color-Theme-2-hex { color: #2B7A78; }
-.My-Color-Theme-3-hex { color: #3AAFA9; }
-.My-Color-Theme-4-hex { color: #DEF2F1; }
-.My-Color-Theme-5-hex { color: #FEFFFF; }
+.circle {
+  background: #1e90ff;
+  clip-path: circle(15%);
+  height: 5em;
+  width: 5em;
+}
+
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+
+}
+
+.modal {
+  width: 300px;
+  margin: 0 auto;
+  border: 1px solid var(--border-color);
+  box-shadow: 0px 0px 5px rgba(0,0,0,0.16);
+  background-color: #fff;
+  border-radius: 0.25rem;
+  padding: 2rem;
+  z-index: 1;
+}
+
+.emoji {
+  display: block;
+  text-align: center;
+  font-size: 5rem;
+  line-height: 5rem;
+  transform: scale(0.5);
+  animation: scaleCup 2s infinite alternate;
+}
+
+@keyframes scaleCup {
+  0% {
+    transform: scale(0.6);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.modal-btn {
+  display: block;
+  margin: 0 -2rem -2rem -2rem;
+  padding: 1rem 2rem;
+  font-size: .75rem;
+  text-transform: uppercase;
+  text-align: center;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0 0 .25rem .25rem;
+  background-color: var(--green);
+  text-decoration: none;
+}
+
+@keyframes confettiRain {
+  0% {
+    opacity: 1;
+    margin-top: -100vh;
+    margin-left: -200px;
+  }
+
+  100% {
+    opacity: 1;
+    margin-top: 100vh;
+    margin-left: 200px;
+  }
+}
+
+.confetti {
+  opacity: 0;
+  position: absolute;
+  width: 1rem;
+  height: 1.5rem;
+  transition: 500ms ease;
+  animation: confettiRain 5s infinite;
+}
+
+#confetti-wrapper {
+   overflow: hidden !important;
+}
