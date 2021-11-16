@@ -1,7 +1,7 @@
 # @Author: johnhaigh
 # @Date:   2020-12-29T17:16:37+00:00
 # @Last modified by:   johnhaigh
-# @Last modified time: 2021-04-03T22:55:57+01:00
+# @Last modified time: 2021-06-14T09:50:32+01:00
 
 #A web based application to track the onboarding of new recruits
 
@@ -26,14 +26,11 @@ import random
 import pandas as pd
 import shutil
 import uuid
-import flask_mail
 
 
 # Configure application
 app = Flask(__name__)
 
-#Create mail instance
-mail = Mail(app)
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -82,7 +79,8 @@ def index():
     if request.method == "GET":
 
         if session.get('user_id') is not None:
-
+            
+            db = SQL("sqlite:///onboard.db")
             info = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
             username = info[0]['email']
             firstname = info[0]['firstname']
