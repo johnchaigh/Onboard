@@ -331,7 +331,7 @@ Dashboard
                 var myChart = new Chart(ctx, {
                   type: 'pie',
                   data: {
-                      labels: {{ pathwaynames | safe }},
+                      labels: {{ labels | safe }},
                       datasets: [{
                         backgroundColor: {{ colours | safe }},
                         data: {{ pathwaynumbers | safe }}

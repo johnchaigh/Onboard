@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Index
+    Homepage
 {% endblock %}
 
 {% block style %}
@@ -14,18 +14,43 @@
 {% endblock %}
 
 {% block main %}
-
-  <div id="center">
-    <img src="static/images/onboard_logo_bk.png" alt="onboard large logo">
-    <h3 class="uk-text-center uk-text uk-text-lighter">Simplifying The Training Of New Partners</h3>
-
-    
-    <br/>
-    <div id='center'>
-      <a href="/register" class="uk-button uk-button-default">Register</a>
-      <a href="/login"class="uk-button uk-button-primary">Login<a>
+<div>
+  <div class="block_full">
+    <div id="center">
+      <img src="static/images/onboard_logo_bk.png" alt="onboard large logo">
+        <h3 class="uk-text-center uk-text uk-text-light">Simplifying The Training Of New Emplopyees</h3>
+      <br/>
+      <div id='center'>
+        <a href="/register" class="uk-button uk-button-default">Register</a>
+        <a href="/login"class="uk-button uk-button-primary">Login<a>
+        </div>
     </div>
   </div>
 
+  <div class="block_m" id='2'>
+    <div class="uk-child-width-1-3@m uk-grid-medium uk-grid-match" uk-grid>
+      <div>
+          <div class="uk-card uk-card-default uk-card-body">
+            <img src="static/images/track.png">
+            <h3 class="uk-heading-divider">Track</h3>
+              <p class="uk-text-small">Track teams of individuals through custom pathways. At a glance see who is thriving or falling behind.</p>
+          </div>
+      </div>
+      <div>
+        <div class="uk-card uk-card-default uk-card-body">
+          <img src="static/images/management.png">
+          <h3 class="uk-heading-divider">Manage</h3>
+            <p class="uk-text-small">Use the CRM functions to track sales performance, and for multi-tierd teams see performance at an indevidual manager level.</p>
+        </div>
+    </div>
+    <div>
+      <div class="uk-card uk-card-default uk-card-body">
+        <img src="static/images/predictive-chart.png">
+        <h3 class="uk-heading-divider">Predict</h3>
+          <p class="uk-text-small">Pridictive algorithms allow you to see when people are likely to graduate from each patheway, making it easier for managers to plan and use their resources effecltively.</p>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
